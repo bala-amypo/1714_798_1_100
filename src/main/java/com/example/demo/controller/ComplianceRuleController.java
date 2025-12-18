@@ -17,7 +17,7 @@ public class ComplianceRuleController {
     @GetMapping
     public List<ComplianceRule> getAll() {
         return service.getAllRules();
-    }
+    }  
 
     @GetMapping("/{id}")
     public ComplianceRule get(@PathVariable Long id) {
