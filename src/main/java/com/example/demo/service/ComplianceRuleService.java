@@ -1,14 +1,23 @@
 package com.example.demo.service;
 
 import com.example.demo.model.ComplianceRule;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public interface ComplianceRuleService {
+@Service
+public class ComplianceRuleService {
 
-    ComplianceRule createRule(ComplianceRule rule);
+    public ComplianceRule save(ComplianceRule rule) {
+        return rule;
+    }
 
-    List<ComplianceRule> getAllRules();
+    public List<ComplianceRule> findAll() {
+        return new ArrayList<>();
+    }
 
-    ComplianceRule getRule(Long id);
+    public ComplianceRule findById(Long id) {
+        return new ComplianceRule();
+    }
 }
