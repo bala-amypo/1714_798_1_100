@@ -1,35 +1,21 @@
-package com.example.demo.controller;
+package com.example.demo.service;
 
 import com.example.demo.model.ComplianceRule;
-import com.example.demo.service.ComplianceRuleService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.Optional;
 
-@RestController
-@RequestMapping("/api/compliance-rules")
-@Tag(name = "Compliance Rules")
-public class ComplianceRuleController {
+public interface ComplianceRuleService {
 
-    private final ComplianceRuleService service;
+    ComplianceRule save(ComplianceRule rule);
 
-    public ComplianceRuleController(ComplianceRuleService service) {
-        this.service = service;
-    }
+    ComplianceRule createRule(ComplianceRule rule);
 
-    @PostMapping
-    public ComplianceRule create(@RequestBody ComplianceRule rule) {
-        return service.save(rule);
-    }
+    List<ComplianceRule> findAll();
 
-    @GetMapping
-    public List<ComplianceRule> getAll() {
-        return service.findAll();
-    }
+    List<ComplianceRule> getAllRules();
 
-    @GetMapping("/{id}")
-    public ComplianceRule getById(@PathVariable Long id) {
-        return service.findById(id);
-    }
+    ComplianceRule getRule(Long id);
+
+    // REQUIRED method
+    Optional<ComplianceRule> findById(Long id);
 }
