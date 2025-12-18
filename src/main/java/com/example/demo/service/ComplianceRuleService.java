@@ -5,6 +5,9 @@ import java.util.List;
 
 public interface ComplianceRuleService {
 
+    // REQUIRED to fix "cannot find symbol save(...)"
+    ComplianceRule save(ComplianceRule rule);
+
     ComplianceRule createRule(ComplianceRule rule);
 
     List<ComplianceRule> getAllRules();
