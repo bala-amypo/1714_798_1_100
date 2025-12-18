@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.model.ComplianceRule;
 import java.util.List;
+import java.util.Optional;
 
 public interface ComplianceRuleService {
 
@@ -16,4 +17,7 @@ public interface ComplianceRuleService {
     List<ComplianceRule> getAllRules();
 
     ComplianceRule getRule(Long id);
+    
+    // Added to fix compilation error in controller
+    Optional<ComplianceRule> findById(Long id);
 }
