@@ -111,20 +111,14 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			
-			<!-- Simplified surefire plugin configuration -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.2.5</version>
-				<configuration>
-					<!-- Skip tests if there are no test classes -->
-					<skipTests>true</skipTests>
-				</configuration>
-			</plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>3.2.5</version>
+    <configuration>
+        <!-- Remove suiteXmlFiles configuration if present -->
+        <useSystemClassLoader>false</useSystemClassLoader>
+    </configuration>
+</plugin>
 		</plugins>
 	</build>
 </project>
