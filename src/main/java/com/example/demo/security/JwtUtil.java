@@ -34,7 +34,7 @@ public class JwtUtil {
             if (secret != null && !secret.isEmpty()) {
                 padded.append(secret);
             } else {
-                padded.append("default");
+                padded.append("MySuperSecureJWTSecretKeyForVendorCompliance2024!");
             }
             while (padded.length() < 32) {
                 padded.append("0");
@@ -45,6 +45,22 @@ public class JwtUtil {
     }
     
     public String generateToken(Authentication authentication, Long userId, String email, String role) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + validityInMs);
+        
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("userId", userId)
+                .claim("email", email)
+                .claim("role", role)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+    
+    // Alternative method that doesn't require Authentication object
+    public String generateToken(Long userId, String email, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validityInMs);
         
