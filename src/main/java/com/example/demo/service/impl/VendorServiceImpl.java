@@ -1,9 +1,11 @@
-package com.example.demo.service;
+// src/main/java/com/example/demo/service/impl/VendorServiceImpl.java
+package com.example.demo.service.impl;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.ValidationException;
 import com.example.demo.model.Vendor;
 import com.example.demo.repository.VendorRepository;
+import com.example.demo.service.VendorService;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
