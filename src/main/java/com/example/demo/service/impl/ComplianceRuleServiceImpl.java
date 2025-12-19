@@ -7,30 +7,29 @@ import com.example.demo.service.ComplianceRuleService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ComplianceRuleServiceImpl implements ComplianceRuleService {
 
-    private final ComplianceRuleRepository complianceRuleRepository;
+    private final ComplianceRuleRepository repository;
 
-    public ComplianceRuleServiceImpl(ComplianceRuleRepository complianceRuleRepository) {
-        this.complianceRuleRepository = complianceRuleRepository;
+    public ComplianceRuleServiceImpl(ComplianceRuleRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public ComplianceRule createRule(ComplianceRule rule) {
-        return complianceRuleRepository.save(rule);
+    public ComplianceRule save(ComplianceRule rule) {
+        return repository.save(rule);
     }
 
     @Override
-    public List<ComplianceRule> getAllRules() {
-        return complianceRuleRepository.findAll();
+    public List<ComplianceRule> findAll() {
+        return repository.findAll();
     }
 
     @Override
-    public ComplianceRule getRule(Long id) {
-        return complianceRuleRepository
-                .findById(id)
-                .orElseThrow(() -> new RuntimeException("ComplianceRule not found"));
+    public Optional<ComplianceRule> findById(Long id) {
+        return repository.findById(id);
     }
 }
