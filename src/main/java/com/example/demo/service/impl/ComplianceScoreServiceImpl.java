@@ -7,6 +7,8 @@ import com.example.demo.model.*;
 import com.example.demo.repository.*;
 import com.example.demo.util.ComplianceScoringEngine;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -21,12 +23,13 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     public ComplianceScoreServiceImpl(VendorRepository vendorRepository,
                                      DocumentTypeRepository documentTypeRepository,
                                      VendorDocumentRepository vendorDocumentRepository,
-                                     ComplianceScoreRepository complianceScoreRepository) {
+                                     ComplianceScoreRepository complianceScoreRepository,
+                                     ComplianceScoringEngine scoringEngine) {
         this.vendorRepository = vendorRepository;
         this.documentTypeRepository = documentTypeRepository;
         this.vendorDocumentRepository = vendorDocumentRepository;
         this.complianceScoreRepository = complianceScoreRepository;
-        this.scoringEngine = new ComplianceScoringEngine();
+        this.scoringEngine = scoringEngine;
     }
     
     @Override
@@ -56,7 +59,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
         // Update score
         complianceScore.setVendor(vendor);
         complianceScore.setScoreValue(score);
-        complianceScore.setLastEvaluated(java.time.LocalDateTime.now());
+        complianceScore.setLastEvaluated(LocalDateTime.now());
         
         return complianceScoreRepository.save(complianceScore);
     }

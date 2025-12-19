@@ -3,9 +3,12 @@ package com.example.demo.util;
 
 import com.example.demo.model.DocumentType;
 import com.example.demo.model.VendorDocument;
+import org.springframework.stereotype.Component;
+
 import java.time.LocalDate;
 import java.util.List;
 
+@Component
 public class ComplianceScoringEngine {
     
     public Double calculateScore(List<VendorDocument> vendorDocuments, List<DocumentType> requiredTypes) {
