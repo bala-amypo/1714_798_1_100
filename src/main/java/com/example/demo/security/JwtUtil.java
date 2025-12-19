@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,9 +20,14 @@ public class JwtUtil {
     private final SecretKey secretKey;
     private final long validityInMs;
     
-    public JwtUtil(@Value("${jwt.secret:secretKey}") String secret,
+    public JwtUtil(@Value("${jwt.secret}") String secret,
                    @Value("${jwt.validity:3600000}") long validityInMs) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+        // Ensure the secret is at least 256 bits (32 characters)
+        if (secret.length() < 32) {
+            // Pad the secret to meet minimum requirements
+            secret = String.format("%-32s", secret).substring(0, 32);
+        }
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.validityInMs = validityInMs;
     }
     
