@@ -1,63 +1,86 @@
+// src/main/java/com/example/demo/security/JwtUtil.java
 package com.example.demo.security;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
+import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class JwtUtil {
-
-    private final String secret;
+    
+    private final SecretKey secretKey;
     private final long validityInMs;
-
-    // REQUIRED constructor
-    public JwtUtil(String secret, long validityInMs) {
-        this.secret = secret;
+    
+    public JwtUtil(@Value("${jwt.secret:secretKey}") String secret,
+                   @Value("${jwt.validity:3600000}") long validityInMs) {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
         this.validityInMs = validityInMs;
     }
-
-    public String generateToken(Authentication authentication,
-                                Long userId,
-                                String email,
-                                String role) {
-
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("userId", userId);
-        claims.put("role", role);
-
+    
+    public String generateToken(Authentication authentication, Long userId, String email, String role) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + validityInMs);
-
+        Date expiryDate = new Date(now.getTime() + validityInMs);
+        
         return Jwts.builder()
-                .setClaims(claims)
+                .setSubject(email)
+                .claim("userId", userId)
+                .claim("email", email)
+                .claim("role", role)
                 .setIssuedAt(now)
-                .setExpiration(expiry)
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .setExpiration(expiryDate)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
-
+    
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException ex) {
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
-
+    
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secret)
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("userId", Long.class);
     }
-
+    
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
+    }
+    
     public String getRoleFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secret)
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("role", String.class);
+    }
+    
+    public List<GrantedAuthority> getAuthoritiesFromToken(String token) {
+        String role = getRoleFromToken(token);
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 }

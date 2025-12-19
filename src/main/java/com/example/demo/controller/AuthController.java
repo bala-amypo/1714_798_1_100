@@ -1,44 +1,50 @@
+// src/main/java/com/example/demo/controller/AuthController.java
 package com.example.demo.controller;
 
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.RegisterRequest;
+import com.example.demo.dto.AuthRequest;
+import com.example.demo.dto.AuthResponse;
 import com.example.demo.model.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.security.authentication.*;
+import jakarta.validation.Valid;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication")
 public class AuthController {
-
-    private final AuthenticationManager authManager;
-    private final UserService userService;
+    
+    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-
-    public AuthController(AuthenticationManager authManager, UserService userService, JwtUtil jwtUtil) {
-        this.authManager = authManager;
-        this.userService = userService;
+    private final UserService userService;
+    
+    public AuthController(AuthenticationManager authenticationManager,
+                         JwtUtil jwtUtil,
+                         UserService userService) {
+        this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.userService = userService;
     }
-
+    
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest req) {
-        User user = new User();
-        user.setFullName(req.getFullName());
-        user.setEmail(req.getEmail());
-        user.setPassword(req.getPassword());
-        return userService.register(user);
+    public User registerUser(@Valid @RequestBody User user) {
+        return userService.registerUser(user);
     }
-
+    
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest req) {
-        Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()));
-        User user = userService.findByEmail(req.getEmail());
-        return jwtUtil.generateToken(auth, user.getId(), user.getEmail(), user.getRole());
+    public AuthResponse login(@Valid @RequestBody AuthRequest authRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        authRequest.getEmail(),
+                        authRequest.getPassword()
+                )
+        );
+        
+        User user = userService.findByEmail(authRequest.getEmail());
+        String token = jwtUtil.generateToken(authentication, user.getId(), user.getEmail(), user.getRole());
+        
+        return new AuthResponse(token, user.getId(), user.getEmail(), user.getRole());
     }
 }

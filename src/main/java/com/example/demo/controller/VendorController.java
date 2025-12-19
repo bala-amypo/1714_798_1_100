@@ -1,42 +1,41 @@
+// src/main/java/com/example/demo/controller/VendorController.java
 package com.example.demo.controller;
 
+import com.example.demo.dto.VendorRequest;
 import com.example.demo.model.Vendor;
 import com.example.demo.service.VendorService;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/vendors")
-@Tag(name = "Vendors")
 public class VendorController {
-
+    
     private final VendorService vendorService;
-
+    
     public VendorController(VendorService vendorService) {
         this.vendorService = vendorService;
     }
-
+    
     @PostMapping
-    public Vendor create(@RequestBody Vendor v) {
-        return vendorService.createVendor(v);
+    public Vendor createVendor(@Valid @RequestBody VendorRequest vendorRequest) {
+        Vendor vendor = new Vendor();
+        vendor.setVendorName(vendorRequest.getVendorName());
+        vendor.setEmail(vendorRequest.getEmail());
+        vendor.setPhone(vendorRequest.getPhone());
+        vendor.setIndustry(vendorRequest.getIndustry());
+        
+        return vendorService.createVendor(vendor);
     }
-
+    
     @GetMapping
-    public List<Vendor> getAll() {
+    public List<Vendor> getAllVendors() {
         return vendorService.getAllVendors();
     }
-
+    
     @GetMapping("/{id}")
-    public Vendor get(@PathVariable Long id) {
+    public Vendor getVendor(@PathVariable Long id) {
         return vendorService.getVendor(id);
     }
 }
