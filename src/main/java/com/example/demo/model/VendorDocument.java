@@ -1,94 +1,92 @@
+// src/main/java/com/example/demo/model/VendorDocument.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "vendor_documents")
 public class VendorDocument {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne(optional = false)
+    
+    @ManyToOne
+    @JoinColumn(name = "vendor_id", nullable = false)
     private Vendor vendor;
-
-    @ManyToOne(optional = false)
+    
+    @ManyToOne
+    @JoinColumn(name = "document_type_id", nullable = false)
     private DocumentType documentType;
-
-    @Column(nullable = false)
+    
+    @NotBlank
+    @Column(name = "file_url")
     private String fileUrl;
-
+    
+    @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
-
+    
+    @Column(name = "expiry_date")
     private LocalDate expiryDate;
-
-    @Column(nullable = false)
+    
+    @Column(name = "is_valid")
     private Boolean isValid;
-
+    
     @PrePersist
-    public void prePersist() {
-        this.uploadedAt = LocalDateTime.now();
+    protected void onCreate() {
+        uploadedAt = LocalDateTime.now();
+        updateValidity();
     }
-
-    // -------- Getters --------
-
-    public Long getId() {
-        return id;
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updateValidity();
     }
-
-    public Vendor getVendor() {
-        return vendor;
+    
+    private void updateValidity() {
+        if (expiryDate == null) {
+            isValid = true;
+        } else {
+            isValid = !expiryDate.isBefore(LocalDate.now());
+        }
     }
-
-    public DocumentType getDocumentType() {
-        return documentType;
-    }
-
-    public String getFileUrl() {
-        return fileUrl;
-    }
-
-    public LocalDateTime getUploadedAt() {
-        return uploadedAt;
-    }
-
-    public LocalDate getExpiryDate() {
-        return expiryDate;
-    }
-
-    public Boolean getIsValid() {
-        return isValid;
-    }
-
-    // -------- Setters --------
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setVendor(Vendor vendor) {
+    
+    // Constructors
+    public VendorDocument() {}
+    
+    public VendorDocument(Vendor vendor, DocumentType documentType, String fileUrl, LocalDate expiryDate) {
         this.vendor = vendor;
-    }
-
-    public void setDocumentType(DocumentType documentType) {
         this.documentType = documentType;
-    }
-
-    public void setFileUrl(String fileUrl) {
         this.fileUrl = fileUrl;
-    }
-
-    public void setUploadedAt(LocalDateTime uploadedAt) {
-        this.uploadedAt = uploadedAt;
-    }
-
-    public void setExpiryDate(LocalDate expiryDate) {
         this.expiryDate = expiryDate;
+        updateValidity();
     }
-
-    public void setIsValid(Boolean isValid) {
-        this.isValid = isValid;
+    
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public Vendor getVendor() { return vendor; }
+    public void setVendor(Vendor vendor) { this.vendor = vendor; }
+    
+    public DocumentType getDocumentType() { return documentType; }
+    public void setDocumentType(DocumentType documentType) { this.documentType = documentType; }
+    
+    public String getFileUrl() { return fileUrl; }
+    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
+    
+    public LocalDateTime getUploadedAt() { return uploadedAt; }
+    public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
+    
+    public LocalDate getExpiryDate() { return expiryDate; }
+    public void setExpiryDate(LocalDate expiryDate) { 
+        this.expiryDate = expiryDate;
+        updateValidity();
     }
+    
+    public Boolean getIsValid() { return isValid; }
+    public void setIsValid(Boolean isValid) { this.isValid = isValid; }
 }

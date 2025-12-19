@@ -1,78 +1,78 @@
+// src/main/java/com/example/demo/model/Vendor.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
+@Table(name = "vendors", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "vendorName")
+})
 public class Vendor {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true, nullable = false)
+    
+    @NotBlank
+    @Column(name = "vendor_name", unique = true)
     private String vendorName;
-
+    
     private String email;
+    
     private String phone;
+    
     private String industry;
-
+    
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
-
+    
+    @ManyToMany
+    @JoinTable(
+        name = "vendor_document_type",
+        joinColumns = @JoinColumn(name = "vendor_id"),
+        inverseJoinColumns = @JoinColumn(name = "document_type_id")
+    )
+    private Set<DocumentType> supportedDocumentTypes = new HashSet<>();
+    
     @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
     }
-
-    // -------- Getters --------
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getVendorName() {
-        return vendorName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getIndustry() {
-        return industry;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    // -------- Setters --------
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setVendorName(String vendorName) {
+    
+    // Constructors
+    public Vendor() {}
+    
+    public Vendor(String vendorName, String email, String phone, String industry) {
         this.vendorName = vendorName;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
-    }
-
-    public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public void setIndustry(String industry) {
         this.industry = industry;
     }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public String getVendorName() { return vendorName; }
+    public void setVendorName(String vendorName) { this.vendorName = vendorName; }
+    
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+    
+    public String getIndustry() { return industry; }
+    public void setIndustry(String industry) { this.industry = industry; }
+    
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    
+    public Set<DocumentType> getSupportedDocumentTypes() { return supportedDocumentTypes; }
+    public void setSupportedDocumentTypes(Set<DocumentType> supportedDocumentTypes) { 
+        this.supportedDocumentTypes = supportedDocumentTypes; 
     }
 }
