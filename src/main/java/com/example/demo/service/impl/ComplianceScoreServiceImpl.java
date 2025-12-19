@@ -1,9 +1,11 @@
-package com.example.demo.service;
+// src/main/java/com/example/demo/service/impl/ComplianceScoreServiceImpl.java
+package com.example.demo.service.impl;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.ValidationException;
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
+import com.example.demo.service.ComplianceScoreService;
 import com.example.demo.util.ComplianceScoringEngine;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
