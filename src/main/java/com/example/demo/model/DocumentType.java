@@ -10,11 +10,12 @@ public class DocumentType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String typeName;
 
     private String description;
 
+    @Column(nullable = false)
     private Boolean required;
 
     private Integer weight;
@@ -23,8 +24,58 @@ public class DocumentType {
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
-    // getters and setters
+    // -------- Getters --------
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Boolean getRequired() {
+        return required;
+    }
+
+    public Integer getWeight() {
+        return weight;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    // -------- Setters --------
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setRequired(Boolean required) {
+        this.required = required;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
