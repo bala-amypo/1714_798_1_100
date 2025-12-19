@@ -10,7 +10,7 @@ public class Vendor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String vendorName;
 
     private String email;
@@ -21,8 +21,58 @@ public class Vendor {
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
-    // getters and setters
+    // -------- Getters --------
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getVendorName() {
+        return vendorName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    // -------- Setters --------
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setVendorName(String vendorName) {
+        this.vendorName = vendorName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
