@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/service/DocumentTypeServiceImpl.java
 package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
@@ -19,12 +18,10 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     
     @Override
     public DocumentType createDocumentType(DocumentType type) {
-        // Check for duplicate type name
         if (documentTypeRepository.existsByTypeName(type.getTypeName())) {
             throw new ValidationException("Document type name already exists: " + type.getTypeName());
         }
         
-        // Validate weight
         if (type.getWeight() != null && type.getWeight() < 0) {
             throw new ValidationException("Weight cannot be negative");
         }

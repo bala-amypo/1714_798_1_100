@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/service/VendorDocumentServiceImpl.java
 package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
@@ -20,9 +19,10 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
     private final VendorRepository vendorRepository;
     private final DocumentTypeRepository documentTypeRepository;
     
-    public VendorDocumentServiceImpl(VendorDocumentRepository vendorDocumentRepository,
-                                    VendorRepository vendorRepository,
-                                    DocumentTypeRepository documentTypeRepository) {
+    public VendorDocumentServiceImpl(
+            VendorDocumentRepository vendorDocumentRepository,
+            VendorRepository vendorRepository,
+            DocumentTypeRepository documentTypeRepository) {
         this.vendorDocumentRepository = vendorDocumentRepository;
         this.vendorRepository = vendorRepository;
         this.documentTypeRepository = documentTypeRepository;
@@ -30,24 +30,20 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
     
     @Override
     public VendorDocument uploadDocument(Long vendorId, Long typeId, VendorDocument document) {
-        // Load vendor and document type
         Vendor vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id: " + vendorId));
         
         DocumentType documentType = documentTypeRepository.findById(typeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document type not found with id: " + typeId));
         
-        // Validate fileUrl
         if (document.getFileUrl() == null || document.getFileUrl().trim().isEmpty()) {
             throw new ValidationException("File URL is required");
         }
         
-        // Validate expiry date
         if (document.getExpiryDate() != null && document.getExpiryDate().isBefore(LocalDate.now())) {
             throw new ValidationException("Expiry date cannot be in the past");
         }
         
-        // Set relationships
         document.setVendor(vendor);
         document.setDocumentType(documentType);
         

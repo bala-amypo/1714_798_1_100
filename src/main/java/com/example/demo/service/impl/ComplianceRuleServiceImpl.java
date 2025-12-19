@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/service/ComplianceRuleServiceImpl.java
 package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
@@ -19,14 +18,12 @@ public class ComplianceRuleServiceImpl implements ComplianceRuleService {
     
     @Override
     public ComplianceRule createRule(ComplianceRule rule) {
-        // Check for duplicate rule name
         if (rule.getRuleName() != null && 
             complianceRuleRepository.findAll().stream()
                 .anyMatch(r -> r.getRuleName().equals(rule.getRuleName()))) {
             throw new ValidationException("Rule name already exists: " + rule.getRuleName());
         }
         
-        // Validate threshold
         if (rule.getThreshold() != null && rule.getThreshold() < 0) {
             throw new ValidationException("Threshold cannot be negative");
         }

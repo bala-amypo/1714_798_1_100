@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/service/DocumentTypeService.java
 package com.example.demo.service;
 
 import com.example.demo.model.DocumentType;

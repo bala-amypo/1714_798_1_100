@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/service/VendorServiceImpl.java
 package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
@@ -19,7 +18,6 @@ public class VendorServiceImpl implements VendorService {
     
     @Override
     public Vendor createVendor(Vendor vendor) {
-        // Check for duplicate vendor name
         if (vendorRepository.existsByVendorName(vendor.getVendorName())) {
             throw new ValidationException("Vendor name already exists: " + vendor.getVendorName());
         }
