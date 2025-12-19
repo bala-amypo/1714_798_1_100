@@ -1,9 +1,7 @@
-// src/main/java/com/example/demo/model/VendorDocument.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -54,7 +52,6 @@ public class VendorDocument {
         }
     }
     
-    // Constructors
     public VendorDocument() {}
     
     public VendorDocument(Vendor vendor, DocumentType documentType, String fileUrl, LocalDate expiryDate) {

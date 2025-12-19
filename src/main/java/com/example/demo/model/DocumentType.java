@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/model/DocumentType.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
@@ -39,15 +38,10 @@ public class DocumentType {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (weight == null) {
-            weight = 0;
-        }
-        if (required == null) {
-            required = false;
-        }
+        if (weight == null) weight = 0;
+        if (required == null) required = false;
     }
     
-    // Constructors
     public DocumentType() {}
     
     public DocumentType(String typeName, String description, Boolean required, Integer weight) {

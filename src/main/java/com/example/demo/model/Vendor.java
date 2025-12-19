@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/model/Vendor.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
@@ -42,7 +41,6 @@ public class Vendor {
         createdAt = LocalDateTime.now();
     }
     
-    // Constructors
     public Vendor() {}
     
     public Vendor(String vendorName, String email, String phone, String industry) {
