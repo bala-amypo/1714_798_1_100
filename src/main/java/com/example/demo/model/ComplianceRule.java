@@ -1,13 +1,21 @@
 package com.example.demo.model;
 
+import jakarta.persistence.*;
+
+@Entity
 public class ComplianceRule {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+
+    private String ruleName;
+
     private String description;
-    private String ruleType;
-    private String status;
-    // Add other fields as needed
+
+    private Integer weight;
+
+    // Getters and setters
 
     public Long getId() {
         return id;
@@ -17,12 +25,12 @@ public class ComplianceRule {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getRuleName() {
+        return ruleName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
     }
 
     public String getDescription() {
@@ -33,19 +41,11 @@ public class ComplianceRule {
         this.description = description;
     }
 
-    public String getRuleType() {
-        return ruleType;
+    public Integer getWeight() {
+        return weight;
     }
 
-    public void setRuleType(String ruleType) {
-        this.ruleType = ruleType;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+    public void setWeight(Integer weight) {
+        this.weight = weight;
     }
 }
