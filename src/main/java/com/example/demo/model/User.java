@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/model/User.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
@@ -39,7 +38,6 @@ public class User {
         createdAt = LocalDateTime.now();
     }
     
-    // Constructors
     public User() {}
     
     public User(String fullName, String email, String password) {
