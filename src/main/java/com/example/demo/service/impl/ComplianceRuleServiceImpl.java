@@ -7,7 +7,6 @@ import com.example.demo.service.ComplianceRuleService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ComplianceRuleServiceImpl implements ComplianceRuleService {
@@ -19,17 +18,18 @@ public class ComplianceRuleServiceImpl implements ComplianceRuleService {
     }
 
     @Override
-    public ComplianceRule save(ComplianceRule rule) {
+    public ComplianceRule createRule(ComplianceRule rule) {
         return repository.save(rule);
     }
 
     @Override
-    public List<ComplianceRule> findAll() {
+    public List<ComplianceRule> getAllRules() {
         return repository.findAll();
     }
 
     @Override
-    public Optional<ComplianceRule> findById(Long id) {
-        return repository.findById(id);
+    public ComplianceRule getRule(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ComplianceRule not found with id: " + id));
     }
 }

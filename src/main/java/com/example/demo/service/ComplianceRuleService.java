@@ -2,13 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.model.ComplianceRule;
 import java.util.List;
-import java.util.Optional;
 
 public interface ComplianceRuleService {
 
-    ComplianceRule save(ComplianceRule rule);
+    ComplianceRule createRule(ComplianceRule rule);
 
-    List<ComplianceRule> findAll();
+    List<ComplianceRule> getAllRules();
 
-    Optional<ComplianceRule> findById(Long id);
+    ComplianceRule getRule(Long id);
 }
