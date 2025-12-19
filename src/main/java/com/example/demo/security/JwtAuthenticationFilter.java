@@ -1,6 +1,6 @@
 package com.example.demo.security;
 
-// import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
