@@ -1,35 +1,38 @@
-package com.example.demo.service.impl;
+// src/main/java/com/example/demo/service/VendorServiceImpl.java
+package com.example.demo.service;
 
-import com.example.demo.exception.ValidationException;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.ValidationException;
 import com.example.demo.model.Vendor;
 import com.example.demo.repository.VendorRepository;
-import com.example.demo.service.VendorService;
+import org.springframework.stereotype.Service;
 import java.util.List;
 
+@Service
 public class VendorServiceImpl implements VendorService {
-
+    
     private final VendorRepository vendorRepository;
-
-    // MUST MATCH EXACT SIGNATURE
+    
     public VendorServiceImpl(VendorRepository vendorRepository) {
         this.vendorRepository = vendorRepository;
     }
-
+    
     @Override
     public Vendor createVendor(Vendor vendor) {
+        // Check for duplicate vendor name
         if (vendorRepository.existsByVendorName(vendor.getVendorName())) {
-            throw new ValidationException("Vendor name already exists");
+            throw new ValidationException("Vendor name already exists: " + vendor.getVendorName());
         }
+        
         return vendorRepository.save(vendor);
     }
-
+    
     @Override
     public Vendor getVendor(Long id) {
         return vendorRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id: " + id));
     }
-
+    
     @Override
     public List<Vendor> getAllVendors() {
         return vendorRepository.findAll();
