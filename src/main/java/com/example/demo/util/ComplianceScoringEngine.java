@@ -1,10 +1,8 @@
-// src/main/java/com/example/demo/util/ComplianceScoringEngine.java
 package com.example.demo.util;
 
 import com.example.demo.model.DocumentType;
 import com.example.demo.model.VendorDocument;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -13,7 +11,7 @@ public class ComplianceScoringEngine {
     
     public Double calculateScore(List<VendorDocument> vendorDocuments, List<DocumentType> requiredTypes) {
         if (requiredTypes.isEmpty()) {
-            return 100.0; // No requirements means fully compliant
+            return 100.0;
         }
         
         double totalWeight = requiredTypes.stream()
@@ -21,7 +19,7 @@ public class ComplianceScoringEngine {
                 .sum();
         
         if (totalWeight == 0) {
-            totalWeight = requiredTypes.size(); // Default weight of 1 per type
+            totalWeight = requiredTypes.size();
         }
         
         double achievedWeight = 0.0;

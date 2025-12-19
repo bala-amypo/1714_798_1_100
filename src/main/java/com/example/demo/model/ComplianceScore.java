@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/model/ComplianceScore.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
@@ -29,7 +28,6 @@ public class ComplianceScore {
     
     private String rating;
     
-    // Constructors
     public ComplianceScore() {}
     
     public ComplianceScore(Vendor vendor, Double scoreValue) {

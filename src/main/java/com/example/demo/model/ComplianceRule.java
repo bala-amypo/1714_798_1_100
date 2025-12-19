@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/model/ComplianceRule.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
@@ -34,12 +33,9 @@ public class ComplianceRule {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (threshold == null) {
-            threshold = 0.0;
-        }
+        if (threshold == null) threshold = 0.0;
     }
     
-    // Constructors
     public ComplianceRule() {}
     
     public ComplianceRule(String ruleName, String ruleDescription, String matchType, Double threshold) {
