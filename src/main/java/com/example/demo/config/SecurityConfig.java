@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // ALLOW ROOT AND ERROR PATHS
-                .requestMatchers("/", "/error", "/favicon.ico").permitAll()
+                .requestMatchers("/", "/error", "/favicon.ico","/health").permitAll()
                 
                 // Allow auth endpoints
                 .requestMatchers("/auth/**").permitAll()
