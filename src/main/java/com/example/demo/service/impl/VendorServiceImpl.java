@@ -1,19 +1,21 @@
-// src/main/java/com/example/demo/service/impl/VendorServiceImpl.java
-package com.example.demo.service.impl;
+package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.ValidationException;
 import com.example.demo.model.Vendor;
 import com.example.demo.repository.VendorRepository;
-import com.example.demo.service.VendorService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class VendorServiceImpl implements VendorService {
     
     private final VendorRepository vendorRepository;
     
+    @Autowired
     public VendorServiceImpl(VendorRepository vendorRepository) {
         this.vendorRepository = vendorRepository;
     }
@@ -23,7 +25,6 @@ public class VendorServiceImpl implements VendorService {
         if (vendorRepository.existsByVendorName(vendor.getVendorName())) {
             throw new ValidationException("Vendor name already exists: " + vendor.getVendorName());
         }
-        
         return vendorRepository.save(vendor);
     }
     

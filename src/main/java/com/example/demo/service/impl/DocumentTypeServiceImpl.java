@@ -1,19 +1,21 @@
-// src/main/java/com/example/demo/service/impl/DocumentTypeServiceImpl.java
-package com.example.demo.service.impl;
+package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.ValidationException;
 import com.example.demo.model.DocumentType;
 import com.example.demo.repository.DocumentTypeRepository;
-import com.example.demo.service.DocumentTypeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class DocumentTypeServiceImpl implements DocumentTypeService {
     
     private final DocumentTypeRepository documentTypeRepository;
     
+    @Autowired
     public DocumentTypeServiceImpl(DocumentTypeRepository documentTypeRepository) {
         this.documentTypeRepository = documentTypeRepository;
     }
@@ -23,11 +25,6 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
         if (documentTypeRepository.existsByTypeName(type.getTypeName())) {
             throw new ValidationException("Document type name already exists: " + type.getTypeName());
         }
-        
-        if (type.getWeight() != null && type.getWeight() < 0) {
-            throw new ValidationException("Weight cannot be negative");
-        }
-        
         return documentTypeRepository.save(type);
     }
     

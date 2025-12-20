@@ -1,5 +1,4 @@
-// src/main/java/com/example/demo/service/impl/VendorDocumentServiceImpl.java
-package com.example.demo.service.impl;
+package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.ValidationException;
@@ -9,18 +8,21 @@ import com.example.demo.model.VendorDocument;
 import com.example.demo.repository.DocumentTypeRepository;
 import com.example.demo.repository.VendorDocumentRepository;
 import com.example.demo.repository.VendorRepository;
-import com.example.demo.service.VendorDocumentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@Transactional
 public class VendorDocumentServiceImpl implements VendorDocumentService {
     
     private final VendorDocumentRepository vendorDocumentRepository;
     private final VendorRepository vendorRepository;
     private final DocumentTypeRepository documentTypeRepository;
     
+    @Autowired
     public VendorDocumentServiceImpl(
             VendorDocumentRepository vendorDocumentRepository,
             VendorRepository vendorRepository,
@@ -57,7 +59,6 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
         if (!vendorRepository.existsById(vendorId)) {
             throw new ResourceNotFoundException("Vendor not found with id: " + vendorId);
         }
-        
         return vendorDocumentRepository.findByVendorId(vendorId);
     }
     

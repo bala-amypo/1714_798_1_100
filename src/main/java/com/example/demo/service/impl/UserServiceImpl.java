@@ -1,20 +1,22 @@
-// src/main/java/com/example/demo/service/impl/UserServiceImpl.java
-package com.example.demo.service.impl;
+package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.ValidationException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
     
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     
+    @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -27,8 +29,7 @@ public class UserServiceImpl implements UserService {
         }
         
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        
-        if (user.getRole() == null) {
+        if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
         }
         
