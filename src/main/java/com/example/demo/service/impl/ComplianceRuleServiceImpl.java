@@ -1,19 +1,21 @@
-// src/main/java/com/example/demo/service/impl/ComplianceRuleServiceImpl.java
-package com.example.demo.service.impl;
+package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.ValidationException;
 import com.example.demo.model.ComplianceRule;
 import com.example.demo.repository.ComplianceRuleRepository;
-import com.example.demo.service.ComplianceRuleService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class ComplianceRuleServiceImpl implements ComplianceRuleService {
     
     private final ComplianceRuleRepository complianceRuleRepository;
     
+    @Autowired
     public ComplianceRuleServiceImpl(ComplianceRuleRepository complianceRuleRepository) {
         this.complianceRuleRepository = complianceRuleRepository;
     }
@@ -25,11 +27,6 @@ public class ComplianceRuleServiceImpl implements ComplianceRuleService {
                 .anyMatch(r -> r.getRuleName().equals(rule.getRuleName()))) {
             throw new ValidationException("Rule name already exists: " + rule.getRuleName());
         }
-        
-        if (rule.getThreshold() != null && rule.getThreshold() < 0) {
-            throw new ValidationException("Threshold cannot be negative");
-        }
-        
         return complianceRuleRepository.save(rule);
     }
     

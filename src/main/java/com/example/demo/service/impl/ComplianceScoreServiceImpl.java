@@ -1,36 +1,35 @@
-// src/main/java/com/example/demo/service/impl/ComplianceScoreServiceImpl.java
-package com.example.demo.service.impl;
+package com.example.demo.service;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.ValidationException;
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
-import com.example.demo.service.ComplianceScoreService;
 import com.example.demo.util.ComplianceScoringEngine;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Transactional
 public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     
     private final VendorRepository vendorRepository;
     private final DocumentTypeRepository documentTypeRepository;
     private final VendorDocumentRepository vendorDocumentRepository;
     private final ComplianceScoreRepository complianceScoreRepository;
-    private final ComplianceScoringEngine scoringEngine;
     
+    @Autowired
     public ComplianceScoreServiceImpl(
             VendorRepository vendorRepository,
             DocumentTypeRepository documentTypeRepository,
             VendorDocumentRepository vendorDocumentRepository,
-            ComplianceScoreRepository complianceScoreRepository,
-            ComplianceScoringEngine scoringEngine) {
+            ComplianceScoreRepository complianceScoreRepository) {
         this.vendorRepository = vendorRepository;
         this.documentTypeRepository = documentTypeRepository;
         this.vendorDocumentRepository = vendorDocumentRepository;
         this.complianceScoreRepository = complianceScoreRepository;
-        this.scoringEngine = scoringEngine;
     }
     
     @Override
@@ -39,20 +38,26 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id: " + vendorId));
         
         List<DocumentType> requiredTypes = documentTypeRepository.findByRequiredTrue();
-        List<VendorDocument> vendorDocuments = vendorDocumentRepository.findByVendorId(vendorId);
+        List<VendorDocument> vendorDocuments = vendorDocumentRepository.findByVendor(vendor);
         
-        Double score = scoringEngine.calculateScore(vendorDocuments, requiredTypes);
+        double scoreValue = ComplianceScoringEngine.calculateScore(requiredTypes, vendorDocuments);
         
-        if (score < 0) {
+        if (scoreValue < 0) {
             throw new ValidationException("Compliance score cannot be negative");
         }
         
-        ComplianceScore complianceScore = complianceScoreRepository.findByVendorId(vendorId)
-                .orElse(new ComplianceScore());
+        String rating = ComplianceScoringEngine.deriveRating(scoreValue);
         
-        complianceScore.setVendor(vendor);
-        complianceScore.setScoreValue(score);
-        complianceScore.setLastEvaluated(LocalDateTime.now());
+        Optional<ComplianceScore> existingScore = complianceScoreRepository.findByVendorId(vendorId);
+        ComplianceScore complianceScore;
+        
+        if (existingScore.isPresent()) {
+            complianceScore = existingScore.get();
+            complianceScore.setScoreValue(scoreValue);
+            complianceScore.setRating(rating);
+        } else {
+            complianceScore = new ComplianceScore(vendor, scoreValue, rating);
+        }
         
         return complianceScoreRepository.save(complianceScore);
     }
@@ -60,7 +65,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     @Override
     public ComplianceScore getScore(Long vendorId) {
         return complianceScoreRepository.findByVendorId(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Compliance score not found for vendor id: " + vendorId));
+                .orElseThrow(() -> new ResourceNotFoundException("Score not found for vendor id: " + vendorId));
     }
     
     @Override
