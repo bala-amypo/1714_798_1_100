@@ -17,11 +17,12 @@ public class JwtUtil {
     private final long validityInMs;
     
     // Use @Value annotations to inject properties
-    public JwtUtil(@Value("${jwt.secret}") String secret, 
-                   @Value("${jwt.validity}") long validityInMs) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.validityInMs = validityInMs;
-    }
+    public JwtUtil(
+        @Value("${jwt.secret}") String secret,
+        @Value("${jwt.validity}") long validityInMs) {
+    this.secret = secret;
+    this.validityInMs = validityInMs;
+}
     
     public String generateToken(Authentication authentication, Long userId, String email, String role) {
         Date now = new Date();
