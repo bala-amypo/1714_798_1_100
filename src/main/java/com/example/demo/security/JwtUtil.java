@@ -2,8 +2,6 @@ package com.example.demo.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import java.security.Key;
@@ -12,16 +10,14 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     
-    @Value("${jwt.secret}")
-    private String secret;
-    
-    @Value("${jwt.expiration}")
-    private long validityInMs;
+    // Hardcoded values since they're not in application.properties
+    private final String secret = "mySecretKeyThatIsAtLeast32CharactersLong1234567890";
+    private final long validityInMs = 86400000L; // 24 hours in milliseconds
     
     private Key key;
     
-    @PostConstruct
-    public void init() {
+    // Initialize in constructor instead of @PostConstruct
+    public JwtUtil() {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
     
