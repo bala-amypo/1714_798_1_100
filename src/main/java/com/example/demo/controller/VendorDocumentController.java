@@ -1,57 +1,47 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.VendorDocumentDTO;
 import com.example.demo.model.VendorDocument;
 import com.example.demo.service.VendorDocumentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/vendor-documents")
+@Tag(name = "Vendor Documents", description = "Vendor document management endpoints")
 public class VendorDocumentController {
     
-    @Autowired
-    private VendorDocumentService vendorDocumentService;
+    private final VendorDocumentService vendorDocumentService;
     
-    @PostMapping
-    public ResponseEntity<VendorDocumentDTO> uploadDocument(
-            @RequestParam Long vendorId,
-            @RequestParam Long typeId,
+    public VendorDocumentController(VendorDocumentService vendorDocumentService) {
+        this.vendorDocumentService = vendorDocumentService;
+    }
+    
+    @PostMapping("/{vendorId}/{typeId}")
+    @Operation(summary = "Upload a document for a vendor")
+    public ResponseEntity<VendorDocument> uploadDocument(
+            @PathVariable Long vendorId,
+            @PathVariable Long typeId,
             @RequestBody VendorDocument document) {
         
         VendorDocument uploadedDoc = vendorDocumentService.uploadDocument(vendorId, typeId, document);
-        return ResponseEntity.ok(convertToDto(uploadedDoc));
+        return new ResponseEntity<>(uploadedDoc, HttpStatus.CREATED);
     }
     
     @GetMapping("/vendor/{vendorId}")
-    public ResponseEntity<List<VendorDocumentDTO>> getDocumentsForVendor(@PathVariable Long vendorId) {
+    @Operation(summary = "Get all documents for a vendor")
+    public ResponseEntity<List<VendorDocument>> getDocumentsForVendor(@PathVariable Long vendorId) {
         List<VendorDocument> documents = vendorDocumentService.getDocumentsForVendor(vendorId);
-        List<VendorDocumentDTO> dtos = documents.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(documents);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<VendorDocumentDTO> getDocument(@PathVariable Long id) {
+    @Operation(summary = "Get document by ID")
+    public ResponseEntity<VendorDocument> getDocument(@PathVariable Long id) {
         VendorDocument document = vendorDocumentService.getDocument(id);
-        return ResponseEntity.ok(convertToDto(document));
-    }
-    
-    private VendorDocumentDTO convertToDto(VendorDocument document) {
-        VendorDocumentDTO dto = new VendorDocumentDTO();
-        dto.setId(document.getId());
-        dto.setVendorId(document.getVendor().getId());
-        dto.setDocumentTypeId(document.getDocumentType().getId());
-        dto.setFileUrl(document.getFileUrl());
-        dto.setUploadedAt(document.getUploadedAt());
-        dto.setExpiryDate(document.getExpiryDate());
-        dto.setIsValid(document.getIsValid());
-        dto.setVendorName(document.getVendor().getVendorName());
-        dto.setDocumentTypeName(document.getDocumentType().getTypeName());
-        return dto;
+        return ResponseEntity.ok(document);
     }
 }

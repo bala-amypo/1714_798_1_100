@@ -1,43 +1,43 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ComplianceRuleDTO;
 import com.example.demo.model.ComplianceRule;
 import com.example.demo.service.ComplianceRuleService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/compliance-rules")
+@Tag(name = "Compliance Rules", description = "Compliance rule management endpoints")
 public class ComplianceRuleController {
     
-    @Autowired
-    private ComplianceRuleService complianceRuleService;
+    private final ComplianceRuleService complianceRuleService;
     
-    @Autowired
-    private ModelMapper modelMapper;
-    
-    @PostMapping
-    public ResponseEntity<ComplianceRuleDTO> createRule(@RequestBody ComplianceRule rule) {
-        ComplianceRule createdRule = complianceRuleService.createRule(rule);
-        return ResponseEntity.ok(modelMapper.map(createdRule, ComplianceRuleDTO.class));
+    public ComplianceRuleController(ComplianceRuleService complianceRuleService) {
+        this.complianceRuleService = complianceRuleService;
     }
     
-    @GetMapping("/{id}")
-    public ResponseEntity<ComplianceRuleDTO> getRule(@PathVariable Long id) {
-        ComplianceRule rule = complianceRuleService.getRule(id);
-        return ResponseEntity.ok(modelMapper.map(rule, ComplianceRuleDTO.class));
+    @PostMapping
+    @Operation(summary = "Create a new compliance rule")
+    public ResponseEntity<ComplianceRule> createRule(@RequestBody ComplianceRule rule) {
+        ComplianceRule createdRule = complianceRuleService.createRule(rule);
+        return new ResponseEntity<>(createdRule, HttpStatus.CREATED);
     }
     
     @GetMapping
-    public ResponseEntity<List<ComplianceRuleDTO>> getAllRules() {
+    @Operation(summary = "Get all compliance rules")
+    public ResponseEntity<List<ComplianceRule>> getAllRules() {
         List<ComplianceRule> rules = complianceRuleService.getAllRules();
-        List<ComplianceRuleDTO> dtos = rules.stream()
-                .map(rule -> modelMapper.map(rule, ComplianceRuleDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(rules);
+    }
+    
+    @GetMapping("/{id}")
+    @Operation(summary = "Get compliance rule by ID")
+    public ResponseEntity<ComplianceRule> getRule(@PathVariable Long id) {
+        ComplianceRule rule = complianceRuleService.getRule(id);
+        return ResponseEntity.ok(rule);
     }
 }

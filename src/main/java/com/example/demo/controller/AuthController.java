@@ -2,100 +2,78 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.RegisterRequest;
-import com.example.demo.entity.User;
-import com.example.demo.entity.Role;
+import com.example.demo.model.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "Authentication endpoints")
 public class AuthController {
     
-    @Autowired
-    private UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final UserService userService;
     
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Value("${jwt.secret}")
+    private String jwtSecret;
     
-    @Autowired
-    private JwtUtil jwtUtil;
+    @Value("${jwt.validity}")
+    private long jwtValidity;
+    
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
+        this.userService = userService;
+    }
     
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
-        // Validate required fields
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            throw new IllegalArgumentException("Email is required");
-        }
-        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-            throw new IllegalArgumentException("Password is required");
-        }
-        if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Full name is required");
-        }
-        if (request.getRole() == null || request.getRole().trim().isEmpty()) {
-            throw new IllegalArgumentException("Role is required");
-        }
-        
-        // Check for existing user
-        User existingUser = userService.findByEmail(request.getEmail());
-        if (existingUser != null) {
-            throw new IllegalArgumentException("Email already exists");
-        }
-        
-        // Validate role
-        String roleStr = request.getRole().toUpperCase();
-        Role role;
-        try {
-            role = Role.valueOf(roleStr);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid role. Must be ADMIN, PUBLISHER, or SUBSCRIBER");
-        }
-        
-        // Create new user
+    @Operation(summary = "Register a new user")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         User user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(role);
+        user.setPassword(request.getPassword());
+        user.setRole("USER");
         
-        User savedUser = userService.registerUser(user);
+        User savedUser = userService.register(user);
         
-        // Generate token
-        String token = jwtUtil.generateToken(
-            savedUser.getId(),
-            savedUser.getEmail(),
-            savedUser.getRole().name()
-        );
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "User registered successfully");
+        response.put("userId", savedUser.getId());
         
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(response);
     }
     
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
-        // Validate required fields
-        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-            throw new IllegalArgumentException("Email is required");
-        }
-        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-            throw new IllegalArgumentException("Password is required");
-        }
-        
-        User user = userService.findByEmail(request.getEmail());
-        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid credentials");
-        }
-        
-        // Generate token
-        String token = jwtUtil.generateToken(
-            user.getId(),
-            user.getEmail(),
-            user.getRole().name()
+    @Operation(summary = "Login user")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
         
-        return ResponseEntity.ok(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        
+        User user = userService.findByEmail(request.getEmail());
+        
+        JwtUtil jwtUtilInstance = new JwtUtil(jwtSecret, jwtValidity);
+        String token = jwtUtilInstance.generateToken(authentication, user.getId(), user.getEmail(), user.getRole());
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        response.put("role", user.getRole());
+        
+        return ResponseEntity.ok(response);
     }
 }

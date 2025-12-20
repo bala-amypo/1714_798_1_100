@@ -1,45 +1,43 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.DocumentTypeDTO;
 import com.example.demo.model.DocumentType;
 import com.example.demo.service.DocumentTypeService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/document-types")
-@PreAuthorize("hasRole('ADMIN')")
+@Tag(name = "Document Types", description = "Document type management endpoints")
 public class DocumentTypeController {
     
-    @Autowired
-    private DocumentTypeService documentTypeService;
+    private final DocumentTypeService documentTypeService;
     
-    @Autowired
-    private ModelMapper modelMapper;
-    
-    @PostMapping
-    public ResponseEntity<DocumentTypeDTO> createDocumentType(@RequestBody DocumentType documentType) {
-        DocumentType createdType = documentTypeService.createDocumentType(documentType);
-        return ResponseEntity.ok(modelMapper.map(createdType, DocumentTypeDTO.class));
+    public DocumentTypeController(DocumentTypeService documentTypeService) {
+        this.documentTypeService = documentTypeService;
     }
     
-    @GetMapping("/{id}")
-    public ResponseEntity<DocumentTypeDTO> getDocumentType(@PathVariable Long id) {
-        DocumentType documentType = documentTypeService.getDocumentType(id);
-        return ResponseEntity.ok(modelMapper.map(documentType, DocumentTypeDTO.class));
+    @PostMapping
+    @Operation(summary = "Create a new document type")
+    public ResponseEntity<DocumentType> createDocumentType(@RequestBody DocumentType documentType) {
+        DocumentType createdType = documentTypeService.createDocumentType(documentType);
+        return new ResponseEntity<>(createdType, HttpStatus.CREATED);
     }
     
     @GetMapping
-    public ResponseEntity<List<DocumentTypeDTO>> getAllDocumentTypes() {
+    @Operation(summary = "Get all document types")
+    public ResponseEntity<List<DocumentType>> getAllDocumentTypes() {
         List<DocumentType> types = documentTypeService.getAllDocumentTypes();
-        List<DocumentTypeDTO> dtos = types.stream()
-                .map(type -> modelMapper.map(type, DocumentTypeDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(types);
+    }
+    
+    @GetMapping("/{id}")
+    @Operation(summary = "Get document type by ID")
+    public ResponseEntity<DocumentType> getDocumentType(@PathVariable Long id) {
+        DocumentType type = documentTypeService.getDocumentType(id);
+        return ResponseEntity.ok(type);
     }
 }
