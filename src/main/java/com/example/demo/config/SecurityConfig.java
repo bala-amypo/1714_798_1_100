@@ -46,8 +46,19 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // ALLOW ROOT PATH FOR PORTAL PREVIEW
+                .requestMatchers("/").permitAll()
+                
+                // Allow auth endpoints
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                
+                // Allow Swagger/OpenAPI
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                
+                // Allow static resources (if any)
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                
+                // All other endpoints require authentication
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
