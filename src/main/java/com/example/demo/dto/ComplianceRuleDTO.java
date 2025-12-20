@@ -1,63 +1,49 @@
 package com.example.demo.dto;
 
-import java.time.LocalDateTime;
-
-public class ComplianceRuleDTO {
-    private Long id;
-    private String ruleName;
-    private String ruleDescription;
-    private String matchType;
-    private Double threshold;
-    private LocalDateTime createdAt;
+public class AuthResponse {
+    private String token;
+    private Long userId;
+    private String email;
+    private String role;
     
-    public ComplianceRuleDTO() {}
+    public AuthResponse() {}
     
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    public AuthResponse(String token, Long userId, String email, String role) {
+        this.token = token;
+        this.userId = userId;
+        this.email = email;
+        this.role = role;
     }
     
-    public void setId(Long id) {
-        this.id = id;
+    public String getToken() {
+        return token;
     }
     
-    public String getRuleName() {
-        return ruleName;
+    public void setToken(String token) {
+        this.token = token;
     }
     
-    public void setRuleName(String ruleName) {
-        this.ruleName = ruleName;
+    public Long getUserId() {
+        return userId;
     }
     
-    public String getRuleDescription() {
-        return ruleDescription;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
     
-    public void setRuleDescription(String ruleDescription) {
-        this.ruleDescription = ruleDescription;
+    public String getEmail() {
+        return email;
     }
     
-    public String getMatchType() {
-        return matchType;
+    public void setEmail(String email) {
+        this.email = email;
     }
     
-    public void setMatchType(String matchType) {
-        this.matchType = matchType;
+    public String getRole() {
+        return role;
     }
     
-    public Double getThreshold() {
-        return threshold;
-    }
-    
-    public void setThreshold(Double threshold) {
-        this.threshold = threshold;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setRole(String role) {
+        this.role = role;
     }
 }
