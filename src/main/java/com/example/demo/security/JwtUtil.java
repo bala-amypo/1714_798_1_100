@@ -2,6 +2,7 @@ package com.example.demo.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,9 @@ public class JwtUtil {
     private final SecretKey secretKey;
     private final long validityInMs;
     
-    public JwtUtil(String secret, long validityInMs) {
+    // Use @Value annotations to inject properties
+    public JwtUtil(@Value("${jwt.secret}") String secret, 
+                   @Value("${jwt.validity}") long validityInMs) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.validityInMs = validityInMs;
     }
@@ -25,11 +28,11 @@ public class JwtUtil {
         Date validity = new Date(now.getTime() + validityInMs);
         
         return Jwts.builder()
-                .setSubject(email)
+                .subject(email)
                 .claim("userId", userId)
                 .claim("role", role)
-                .setIssuedAt(now)
-                .setExpiration(validity)
+                .issuedAt(now)
+                .expiration(validity)
                 .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
     }
