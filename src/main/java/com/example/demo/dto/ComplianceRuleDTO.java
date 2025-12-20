@@ -1,49 +1,61 @@
 package com.example.demo.dto;
 
-public class AuthResponse {
-    private String token;
-    private Long userId;
-    private String email;
-    private String role;
+public class ComplianceRuleDTO {
+    private Long id;
+    private String ruleName;
+    private String ruleDescription;
+    private String matchType; // EXPIRY_CHECK, DOCUMENT_REQUIRED, WEIGHTED_SCORE
+    private Double threshold;
     
-    public AuthResponse() {}
+    // Constructors
+    public ComplianceRuleDTO() {}
     
-    public AuthResponse(String token, Long userId, String email, String role) {
-        this.token = token;
-        this.userId = userId;
-        this.email = email;
-        this.role = role;
+    public ComplianceRuleDTO(Long id, String ruleName, String ruleDescription, String matchType, Double threshold) {
+        this.id = id;
+        this.ruleName = ruleName;
+        this.ruleDescription = ruleDescription;
+        this.matchType = matchType;
+        this.threshold = threshold;
     }
     
-    public String getToken() {
-        return token;
+    // Getters and Setters
+    public Long getId() {
+        return id;
     }
     
-    public void setToken(String token) {
-        this.token = token;
+    public void setId(Long id) {
+        this.id = id;
     }
     
-    public Long getUserId() {
-        return userId;
+    public String getRuleName() {
+        return ruleName;
     }
     
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
     }
     
-    public String getEmail() {
-        return email;
+    public String getRuleDescription() {
+        return ruleDescription;
     }
     
-    public void setEmail(String email) {
-        this.email = email;
+    public void setRuleDescription(String ruleDescription) {
+        this.ruleDescription = ruleDescription;
     }
     
-    public String getRole() {
-        return role;
+    public String getMatchType() {
+        return matchType;
     }
     
-    public void setRole(String role) {
-        this.role = role;
+    public void setMatchType(String matchType) {
+        this.matchType = matchType;
+    }
+    
+    public Double getThreshold() {
+        return threshold;
+    }
+    
+    public void setThreshold(Double threshold) {
+        this.threshold = threshold;
     }
 }

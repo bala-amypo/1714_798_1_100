@@ -1,9 +1,10 @@
-package com.example.demo.dto;
+]package com.example.demo.dto;
 
 public class AuthRequest {
     private String email;
     private String password;
     
+    // Constructors
     public AuthRequest() {}
     
     public AuthRequest(String email, String password) {
@@ -11,6 +12,7 @@ public class AuthRequest {
         this.password = password;
     }
     
+    // Getters and Setters
     public String getEmail() {
         return email;
     }
