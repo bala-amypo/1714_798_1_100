@@ -14,7 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+// Use jakarta.validation instead of javax.validation
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
