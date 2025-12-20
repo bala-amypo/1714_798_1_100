@@ -42,21 +42,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)  // Disable CSRF
+            .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // ALLOW ROOT PATH FOR PORTAL PREVIEW
-                .requestMatchers("/").permitAll()
+                // CRITICAL: Allow both root and error paths
+                .requestMatchers("/", "/error", "/favicon.ico").permitAll()
                 
                 // Allow auth endpoints
                 .requestMatchers("/auth/**").permitAll()
                 
                 // Allow Swagger/OpenAPI
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                
-                // Allow static resources (if any)
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
                 
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
