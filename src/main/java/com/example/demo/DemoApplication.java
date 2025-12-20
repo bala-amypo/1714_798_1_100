@@ -14,7 +14,7 @@ public class DemoApplication {
     }
     
     @Bean
-    public ServletRegistrationBean<SimpleStatusServlet> simpleStatusServlet() {
+    public ServletRegistrationBean<HealthServlet> simpleStatusServlet() {
         return new ServletRegistrationBean<>(new HealthServlet(), "/health");
     }
 }
