@@ -1,31 +1,32 @@
-package com.example.demo.service;
+package com.example.demo.service.impl;
 
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.ValidationException;
 import com.example.demo.model.DocumentType;
 import com.example.demo.repository.DocumentTypeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.service.DocumentTypeService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
 public class DocumentTypeServiceImpl implements DocumentTypeService {
     
     private final DocumentTypeRepository documentTypeRepository;
     
-    @Autowired
     public DocumentTypeServiceImpl(DocumentTypeRepository documentTypeRepository) {
         this.documentTypeRepository = documentTypeRepository;
     }
     
     @Override
-    public DocumentType createDocumentType(DocumentType type) {
-        if (documentTypeRepository.existsByTypeName(type.getTypeName())) {
-            throw new ValidationException("Document type name already exists: " + type.getTypeName());
+    public DocumentType createDocumentType(DocumentType documentType) {
+        if (documentType.getWeight() <= 0) {
+            throw new ValidationException("Weight must be greater than 0");
         }
-        return documentTypeRepository.save(type);
+        
+        if (documentTypeRepository.existsByTypeName(documentType.getTypeName())) {
+            throw new ValidationException("Document Type already exists");
+        }
+        return documentTypeRepository.save(documentType);
     }
     
     @Override
@@ -36,6 +37,6 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     @Override
     public DocumentType getDocumentType(Long id) {
         return documentTypeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Document type not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Document Type not found"));
     }
 }

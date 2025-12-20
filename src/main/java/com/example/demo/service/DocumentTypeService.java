@@ -4,7 +4,7 @@ import com.example.demo.model.DocumentType;
 import java.util.List;
 
 public interface DocumentTypeService {
-    DocumentType createDocumentType(DocumentType type);
+    DocumentType createDocumentType(DocumentType documentType);
     List<DocumentType> getAllDocumentTypes();
     DocumentType getDocumentType(Long id);
 }
