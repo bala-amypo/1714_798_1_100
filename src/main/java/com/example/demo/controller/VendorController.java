@@ -1,41 +1,53 @@
-// src/main/java/com/example/demo/controller/VendorController.java
 package com.example.demo.controller;
 
-import com.example.demo.dto.VendorRequest;
+import com.example.demo.dto.VendorDTO;
 import com.example.demo.model.Vendor;
 import com.example.demo.service.VendorService;
-import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/vendors")
 public class VendorController {
     
-    private final VendorService vendorService;
+    @Autowired
+    private VendorService vendorService;
     
-    public VendorController(VendorService vendorService) {
-        this.vendorService = vendorService;
-    }
+    @Autowired
+    private ModelMapper modelMapper;
     
     @PostMapping
-    public Vendor createVendor(@Valid @RequestBody VendorRequest vendorRequest) {
-        Vendor vendor = new Vendor();
-        vendor.setVendorName(vendorRequest.getVendorName());
-        vendor.setEmail(vendorRequest.getEmail());
-        vendor.setPhone(vendorRequest.getPhone());
-        vendor.setIndustry(vendorRequest.getIndustry());
-        
-        return vendorService.createVendor(vendor);
-    }
-    
-    @GetMapping
-    public List<Vendor> getAllVendors() {
-        return vendorService.getAllVendors();
+    public ResponseEntity<VendorDTO> createVendor(@RequestBody Vendor vendor) {
+        Vendor createdVendor = vendorService.createVendor(vendor);
+        return ResponseEntity.ok(convertToDto(createdVendor));
     }
     
     @GetMapping("/{id}")
-    public Vendor getVendor(@PathVariable Long id) {
-        return vendorService.getVendor(id);
+    public ResponseEntity<VendorDTO> getVendor(@PathVariable Long id) {
+        Vendor vendor = vendorService.getVendor(id);
+        return ResponseEntity.ok(convertToDto(vendor));
+    }
+    
+    @GetMapping
+    public ResponseEntity<List<VendorDTO>> getAllVendors() {
+        List<Vendor> vendors = vendorService.getAllVendors();
+        List<VendorDTO> vendorDTOs = vendors.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(vendorDTOs);
+    }
+    
+    private VendorDTO convertToDto(Vendor vendor) {
+        VendorDTO dto = modelMapper.map(vendor, VendorDTO.class);
+        if (vendor.getSupportedDocumentTypes() != null) {
+            dto.setDocumentTypeIds(vendor.getSupportedDocumentTypes().stream()
+                    .map(dt -> dt.getId())
+                    .collect(Collectors.toSet()));
+        }
+        return dto;
     }
 }
