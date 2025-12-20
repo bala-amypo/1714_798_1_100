@@ -11,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -27,42 +25,35 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
     
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        // Check if user already exists
-        try {
-            User existingUser = userService.findByEmail(registerRequest.getEmail());
-            if (existingUser != null) {
-                throw new IllegalArgumentException("Email already in use");
-            }
-        } catch (Exception e) {
-            // User not found, that's good
-        }
-        
-        // Create new user
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+        // Create user from register request
         User user = new User();
         user.setFullName(registerRequest.getFullName());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setRole("USER"); // Default role
         
-        // Save user (make sure UserService.register method exists)
-        User savedUser = userService.register(user);
+        // Save user - this should throw ValidationException if email exists
+        User registeredUser = userService.register(user);
         
-        // Generate token WITHOUT authentication
+        // Generate token directly WITHOUT authentication
         String token = jwtUtil.generateToken(
-            savedUser.getId(),
-            savedUser.getEmail(),
-            savedUser.getRole()
+            registeredUser.getId(),
+            registeredUser.getEmail(),
+            registeredUser.getRole()
         );
         
-        return ResponseEntity.ok(new AuthResponse(token, savedUser.getId(), savedUser.getEmail(), savedUser.getRole()));
+        // Return response with token
+        return ResponseEntity.ok(new AuthResponse(token, registeredUser.getId(), 
+            registeredUser.getEmail(), registeredUser.getRole()));
     }
     
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest authRequest) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         // Find user by email
         User user = userService.findByEmail(authRequest.getEmail());
         
+        // Verify password
         if (user == null || !passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Invalid credentials");
         }
@@ -74,6 +65,7 @@ public class AuthController {
             user.getRole()
         );
         
+        // Return response with token
         return ResponseEntity.ok(new AuthResponse(token, user.getId(), user.getEmail(), user.getRole()));
     }
 }
