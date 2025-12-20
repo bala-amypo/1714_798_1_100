@@ -4,12 +4,22 @@ public class AuthResponse {
     private String token;
     private String email;
     private String role;
+    private Long userId;  // Add userId field
     
     // Constructors
     public AuthResponse() {}
     
+    // Original constructor (keep for backward compatibility)
     public AuthResponse(String token, String email, String role) {
         this.token = token;
+        this.email = email;
+        this.role = role;
+    }
+    
+    // New constructor with userId
+    public AuthResponse(String token, Long userId, String email, String role) {
+        this.token = token;
+        this.userId = userId;
         this.email = email;
         this.role = role;
     }
@@ -37,5 +47,13 @@ public class AuthResponse {
     
     public void setRole(String role) {
         this.role = role;
+    }
+    
+    public Long getUserId() {
+        return userId;
+    }
+    
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
