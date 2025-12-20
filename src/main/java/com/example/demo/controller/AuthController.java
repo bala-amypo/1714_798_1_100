@@ -34,19 +34,23 @@ public class AuthController {
     
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                authRequest.getEmail(),
-                authRequest.getPassword()
-            )
-        );
-        
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        
-        User user = userService.findByEmail(authRequest.getEmail());
-        String token = jwtUtil.generateToken(authentication, user.getId(), user.getEmail(), user.getRole());
-        
-        AuthResponse authResponse = new AuthResponse(token, user.getId(), user.getEmail(), user.getRole());
-        return ResponseEntity.ok(authResponse);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    authRequest.getEmail(),
+                    authRequest.getPassword()
+                )
+            );
+            
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            User user = userService.findByEmail(authRequest.getEmail());
+            String token = jwtUtil.generateToken(authentication, user.getId(), user.getEmail(), user.getRole());
+            
+            AuthResponse authResponse = new AuthResponse(token, user.getId(), user.getEmail(), user.getRole());
+            return ResponseEntity.ok(authResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid email or password");
+        }
     }
 }
