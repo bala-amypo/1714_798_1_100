@@ -1,11 +1,11 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.AuthRequest;
-import com.example.demo.dto.AuthResponse;
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.RegisterRequest;
-import com.example.demo.model.User;
-import com.example.demo.service.UserService;
+import com.example.demo.entity.User;
+import com.example.demo.entity.Role;
 import com.example.demo.security.JwtUtil;
+import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,45 +16,76 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     
     @Autowired
-    private JwtUtil jwtUtil;
-    
-    @Autowired
     private UserService userService;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
     
+    @Autowired
+    private JwtUtil jwtUtil;
+    
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        // Create user from register request
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+        // Validate required fields
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+        if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Full name is required");
+        }
+        if (request.getRole() == null || request.getRole().trim().isEmpty()) {
+            throw new IllegalArgumentException("Role is required");
+        }
+        
+        // Check for existing user
+        User existingUser = userService.findByEmail(request.getEmail());
+        if (existingUser != null) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+        
+        // Validate role
+        String roleStr = request.getRole().toUpperCase();
+        Role role;
+        try {
+            role = Role.valueOf(roleStr);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid role. Must be ADMIN, PUBLISHER, or SUBSCRIBER");
+        }
+        
+        // Create new user
         User user = new User();
-        user.setFullName(registerRequest.getFullName());
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setRole("USER"); // Default role
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(role);
         
-        // Save user - this should throw ValidationException if email exists
-        User registeredUser = userService.register(user);
+        User savedUser = userService.registerUser(user);
         
-        // Generate token directly WITHOUT authentication
+        // Generate token
         String token = jwtUtil.generateToken(
-            registeredUser.getId(),
-            registeredUser.getEmail(),
-            registeredUser.getRole()
+            savedUser.getId(),
+            savedUser.getEmail(),
+            savedUser.getRole().name()
         );
         
-        // Return response with token
-        return ResponseEntity.ok(new AuthResponse(token, registeredUser.getId(), 
-            registeredUser.getEmail(), registeredUser.getRole()));
+        return ResponseEntity.ok(token);
     }
     
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        // Find user by email
-        User user = userService.findByEmail(authRequest.getEmail());
+    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
+        // Validate required fields
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Password is required");
+        }
         
-        // Verify password
-        if (user == null || !passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
+        User user = userService.findByEmail(request.getEmail());
+        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Invalid credentials");
         }
         
@@ -62,10 +93,9 @@ public class AuthController {
         String token = jwtUtil.generateToken(
             user.getId(),
             user.getEmail(),
-            user.getRole()
+            user.getRole().name()
         );
         
-        // Return response with token
-        return ResponseEntity.ok(new AuthResponse(token, user.getId(), user.getEmail(), user.getRole()));
+        return ResponseEntity.ok(token);
     }
 }

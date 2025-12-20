@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import java.util.Date;
 
@@ -14,14 +13,14 @@ public class JwtUtil {
     private final long validityInMs;
     
     public JwtUtil(
-            @Value("${jwt.secret}") String secret,
-            @Value("${jwt.validity}") long validityInMs) {
+            @Value("${jwt.secret:defaultSecretKey1234567890}") String secret,
+            @Value("${jwt.validity-in-ms:86400000}") long validityInMs) {
         this.secret = secret;
         this.validityInMs = validityInMs;
     }
     
-    public String generateToken(Long userId, String email, String role) {
-        Claims claims = Jwts.claims().setSubject(email);
+    public String generateToken(Long userId, String username, String role) {
+        Claims claims = Jwts.claims().setSubject(username);
         claims.put("userId", userId);
         claims.put("role", role);
         
@@ -35,11 +34,6 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
-    
-    public String generateToken(Authentication authentication, Long userId, String email, String role) {
-        return generateToken(userId, email, role);
-    }
-    
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
@@ -47,6 +41,12 @@ public class JwtUtil {
         } catch (Exception e) {
             return false;
         }
+    }
+    
+    // Test expects: validateToken(String token, String username)
+    public boolean validateToken(String token, String username) {
+        String tokenUsername = getUsernameFromToken(token);
+        return (tokenUsername.equals(username) && !isTokenExpired(token));
     }
     
     public Long getUserIdFromToken(String token) {
@@ -65,11 +65,22 @@ public class JwtUtil {
         return claims.get("role", String.class);
     }
     
-    public String getEmailFromToken(String token) {
+    public String getUsernameFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
     }
+    
+    private boolean isTokenExpired(String token) {
+        Date expiration = Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration();
+        return expiration.before(new Date());
+    }
 }
+
+
