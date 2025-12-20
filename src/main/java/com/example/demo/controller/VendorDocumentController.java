@@ -3,7 +3,6 @@ package com.example.demo.controller;
 import com.example.demo.dto.VendorDocumentDTO;
 import com.example.demo.model.VendorDocument;
 import com.example.demo.service.VendorDocumentService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +15,6 @@ public class VendorDocumentController {
     
     @Autowired
     private VendorDocumentService vendorDocumentService;
-    
-    @Autowired
-    private ModelMapper modelMapper;
     
     @PostMapping
     public ResponseEntity<VendorDocumentDTO> uploadDocument(
@@ -46,9 +42,14 @@ public class VendorDocumentController {
     }
     
     private VendorDocumentDTO convertToDto(VendorDocument document) {
-        VendorDocumentDTO dto = modelMapper.map(document, VendorDocumentDTO.class);
+        VendorDocumentDTO dto = new VendorDocumentDTO();
+        dto.setId(document.getId());
         dto.setVendorId(document.getVendor().getId());
         dto.setDocumentTypeId(document.getDocumentType().getId());
+        dto.setFileUrl(document.getFileUrl());
+        dto.setUploadedAt(document.getUploadedAt());
+        dto.setExpiryDate(document.getExpiryDate());
+        dto.setIsValid(document.getIsValid());
         dto.setVendorName(document.getVendor().getVendorName());
         dto.setDocumentTypeName(document.getDocumentType().getTypeName());
         return dto;

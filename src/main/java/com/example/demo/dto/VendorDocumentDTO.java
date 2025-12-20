@@ -1,61 +1,91 @@
-package com.example.demo.controller;
+package com.example.demo.dto;
 
-import com.example.demo.dto.VendorDocumentDTO;
-import com.example.demo.model.VendorDocument;
-import com.example.demo.service.VendorDocumentService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-@RestController
-@RequestMapping("/api/vendor-documents")
-public class VendorDocumentController {
+public class VendorDocumentDTO {
+    private Long id;
+    private Long vendorId;
+    private Long documentTypeId;
+    private String fileUrl;
+    private LocalDateTime uploadedAt;
+    private LocalDate expiryDate;
+    private Boolean isValid;
+    private String vendorName;
+    private String documentTypeName;
     
-    @Autowired
-    private VendorDocumentService vendorDocumentService;
+    public VendorDocumentDTO() {}
     
-    @Autowired
-    private ModelMapper modelMapper;
-    
-    @PostMapping
-    public ResponseEntity<VendorDocumentDTO> uploadDocument(
-            @RequestParam Long vendorId,
-            @RequestParam Long typeId,
-            @RequestBody VendorDocument document) {
-        
-        VendorDocument uploadedDoc = vendorDocumentService.uploadDocument(vendorId, typeId, document);
-        return ResponseEntity.ok(convertToDto(uploadedDoc));
+    // Getters and Setters
+    public Long getId() {
+        return id;
     }
     
-    @GetMapping("/vendor/{vendorId}")
-    public ResponseEntity<List<VendorDocumentDTO>> getDocumentsForVendor(@PathVariable Long vendorId) {
-        List<VendorDocument> documents = vendorDocumentService.getDocumentsForVendor(vendorId);
-        List<VendorDocumentDTO> dtos = documents.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dtos);
+    public void setId(Long id) {
+        this.id = id;
     }
     
-    @GetMapping("/{id}")
-    public ResponseEntity<VendorDocumentDTO> getDocument(@PathVariable Long id) {
-        VendorDocument document = vendorDocumentService.getDocument(id);
-        return ResponseEntity.ok(convertToDto(document));
+    public Long getVendorId() {
+        return vendorId;
     }
     
-    private VendorDocumentDTO convertToDto(VendorDocument document) {
-        VendorDocumentDTO dto = new VendorDocumentDTO();
-        dto.setId(document.getId());
-        dto.setVendorId(document.getVendor().getId());
-        dto.setDocumentTypeId(document.getDocumentType().getId());
-        dto.setFileUrl(document.getFileUrl());
-        dto.setUploadedAt(document.getUploadedAt());
-        dto.setExpiryDate(document.getExpiryDate());
-        dto.setIsValid(document.getIsValid());
-        dto.setVendorName(document.getVendor().getVendorName());
-        dto.setDocumentTypeName(document.getDocumentType().getTypeName());
-        return dto;
+    public void setVendorId(Long vendorId) {
+        this.vendorId = vendorId;
+    }
+    
+    public Long getDocumentTypeId() {
+        return documentTypeId;
+    }
+    
+    public void setDocumentTypeId(Long documentTypeId) {
+        this.documentTypeId = documentTypeId;
+    }
+    
+    public String getFileUrl() {
+        return fileUrl;
+    }
+    
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
+    }
+    
+    public LocalDateTime getUploadedAt() {
+        return uploadedAt;
+    }
+    
+    public void setUploadedAt(LocalDateTime uploadedAt) {
+        this.uploadedAt = uploadedAt;
+    }
+    
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+    
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+    
+    public Boolean getIsValid() {
+        return isValid;
+    }
+    
+    public void setIsValid(Boolean isValid) {
+        this.isValid = isValid;
+    }
+    
+    public String getVendorName() {
+        return vendorName;
+    }
+    
+    public void setVendorName(String vendorName) {
+        this.vendorName = vendorName;
+    }
+    
+    public String getDocumentTypeName() {
+        return documentTypeName;
+    }
+    
+    public void setDocumentTypeName(String documentTypeName) {
+        this.documentTypeName = documentTypeName;
     }
 }
