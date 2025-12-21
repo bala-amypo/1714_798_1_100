@@ -1,62 +1,45 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.service.UserService;
+import com.example.demo.model.Vendor;
+import com.example.demo.repository.VendorRepository;
+import com.example.demo.service.VendorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
-public class UserServiceImpl implements UserService {
+public class VendorServiceImpl implements VendorService {
     
     @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private VendorRepository vendorRepository;
     
     @Override
-    public User registerUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new ValidationException("Email already exists: " + user.getEmail());
+    public Vendor createVendor(Vendor vendor) {
+        if (vendorRepository.existsByVendorName(vendor.getVendorName())) {
+            throw new IllegalArgumentException("Vendor name already exists: " + vendor.getVendorName());
         }
-        
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("USER");
+        return vendorRepository.save(vendor);
+    }
+    
+    @Override
+    public Vendor getVendor(Long id) {
+        return vendorRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Vendor not found with id: " + id));
+    }
+    
+    @Override
+    public List<Vendor> getAllVendors() {
+        return vendorRepository.findAll();
+    }
+    
+    @Override
+    public void deleteVendor(Long id) {
+        if (!vendorRepository.existsById(id)) {
+            throw new NoSuchElementException("Vendor not found with id: " + id);
         }
-        
-        return userRepository.save(user);
-    }
-    
-    @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-    }
-    
-    @Override
-    public User getById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-    }
-    
-    @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-    
-    @Override
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User not found with id: " + id);
-        }
-        userRepository.deleteById(id);
+        vendorRepository.deleteById(id);
     }
 }
