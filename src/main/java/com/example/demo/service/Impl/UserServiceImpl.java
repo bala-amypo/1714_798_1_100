@@ -1,7 +1,8 @@
-package com.example.demo.service;
+package com.example.demo.service.impl;
 
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,39 +12,22 @@ import java.util.List;
 @Transactional
 public class UserServiceImpl implements UserService {
     
-    private final UserRepository userRepository;
-    
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository;
     
     @Override
     public User registerUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Duplicate email: " + user.getEmail());
-        }
-        
-        // No password encoding
-        // user.setPassword(passwordEncoder.encode(user.getPassword()));
-        
-        if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("USER");
-        }
-        
         return userRepository.save(user);
     }
     
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        return userRepository.findByEmail(email).orElse(null);
     }
     
     @Override
     public User getById(Long id) {
-        return userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+        return userRepository.findById(id).orElse(null);
     }
     
     @Override
@@ -52,29 +36,7 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
-    public User updateUser(Long id, User user) {
-        User existingUser = getById(id);
-        
-        if (!existingUser.getEmail().equals(user.getEmail()) && 
-            userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Duplicate email: " + user.getEmail());
-        }
-        
-        existingUser.setFullName(user.getFullName());
-        existingUser.setEmail(user.getEmail());
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            existingUser.setPassword(user.getPassword()); // No encoding
-        }
-        if (user.getRole() != null && !user.getRole().isEmpty()) {
-            existingUser.setRole(user.getRole());
-        }
-        
-        return userRepository.save(existingUser);
-    }
-    
-    @Override
     public void deleteUser(Long id) {
-        User user = getById(id);
-        userRepository.delete(user);
+        userRepository.deleteById(id);
     }
 }
