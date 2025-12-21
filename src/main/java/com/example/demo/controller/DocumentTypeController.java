@@ -1,5 +1,4 @@
 package com.example.demo.controller;
-
 import com.example.demo.model.DocumentType;
 import com.example.demo.service.DocumentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +34,23 @@ public class DocumentTypeController {
     public ResponseEntity<DocumentType> getDocumentTypeById(@PathVariable Long id) {
         DocumentType type = documentTypeService.getDocumentType(id);
         return ResponseEntity.ok(type);
+    }
+    
+    @GetMapping("/required")
+    public ResponseEntity<List<DocumentType>> getRequiredDocumentTypes() {
+        List<DocumentType> types = documentTypeService.getRequiredDocumentTypes();
+        return ResponseEntity.ok(types);
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<DocumentType> updateDocumentType(@PathVariable Long id, @RequestBody DocumentType documentType) {
+        DocumentType updatedType = documentTypeService.updateDocumentType(id, documentType);
+        return ResponseEntity.ok(updatedType);
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDocumentType(@PathVariable Long id) {
+        documentTypeService.deleteDocumentType(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,4 @@
 package com.example.demo.controller;
-
 import com.example.demo.model.Vendor;
 import com.example.demo.service.VendorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +34,17 @@ public class VendorController {
     public ResponseEntity<Vendor> getVendorById(@PathVariable Long id) {
         Vendor vendor = vendorService.getVendor(id);
         return ResponseEntity.ok(vendor);
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<Vendor> updateVendor(@PathVariable Long id, @RequestBody Vendor vendor) {
+        Vendor updatedVendor = vendorService.updateVendor(id, vendor);
+        return ResponseEntity.ok(updatedVendor);
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteVendor(@PathVariable Long id) {
+        vendorService.deleteVendor(id);
+        return ResponseEntity.noContent().build();
     }
 }

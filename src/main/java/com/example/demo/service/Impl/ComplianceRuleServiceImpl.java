@@ -1,5 +1,4 @@
 package com.example.demo.service;
-
 import com.example.demo.model.ComplianceRule;
 import com.example.demo.repository.ComplianceRuleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +19,6 @@ public class ComplianceRuleServiceImpl implements ComplianceRuleService {
     
     @Override
     public ComplianceRule createRule(ComplianceRule rule) {
-        // Enforce uniqueness of ruleName if specified
-        if (rule.getRuleName() != null && !rule.getRuleName().isEmpty()) {
-            boolean exists = complianceRuleRepository.findAll().stream()
-                .anyMatch(r -> rule.getRuleName().equals(r.getRuleName()));
-            if (exists) {
-                throw new RuntimeException("Duplicate rule name");
-            }
-        }
-        
-        // Ensure threshold is not negative
         if (rule.getThreshold() < 0) {
             rule.setThreshold(0.0);
         }
@@ -45,6 +34,35 @@ public class ComplianceRuleServiceImpl implements ComplianceRuleService {
     @Override
     public ComplianceRule getRule(Long id) {
         return complianceRuleRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Compliance rule not found"));
+            .orElseThrow(() -> new RuntimeException("Compliance rule not found with ID: " + id));
+    }
+    
+    @Override
+    public ComplianceRule updateRule(Long id, ComplianceRule rule) {
+        ComplianceRule existingRule = getRule(id);
+        
+        if (rule.getRuleName() != null && !rule.getRuleName().isEmpty()) {
+            existingRule.setRuleName(rule.getRuleName());
+        }
+        if (rule.getRuleDescription() != null) {
+            existingRule.setRuleDescription(rule.getRuleDescription());
+        }
+        if (rule.getMatchType() != null && !rule.getMatchType().isEmpty()) {
+            existingRule.setMatchType(rule.getMatchType());
+        }
+        if (rule.getThreshold() != null) {
+            existingRule.setThreshold(rule.getThreshold());
+            if (existingRule.getThreshold() < 0) {
+                existingRule.setThreshold(0.0);
+            }
+        }
+        
+        return complianceRuleRepository.save(existingRule);
+    }
+    
+    @Override
+    public void deleteRule(Long id) {
+        ComplianceRule rule = getRule(id);
+        complianceRuleRepository.delete(rule);
     }
 }

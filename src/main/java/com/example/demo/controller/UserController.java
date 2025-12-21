@@ -1,52 +1,56 @@
-// package com.example.demo.controller;
+package com.example.demo.controller;
+import com.example.demo.model.User;
+import com.example.demo.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.web.bind.annotation.*;
-// import com.example.demo.model.User;
-// import com.example.demo.service.UserService;
-// import java.util.List;
-// import java.util.Optional;
-
-// @RestController
-// @RequestMapping("/api/users")
-// public class UserController {
-
-//     @Autowired
-//     UserService userService;
-
-//     @PostMapping
-//     public User createUser(@RequestBody User user) {
-//         return userService.registerUser(user);
-//     }
-
-//     @GetMapping
-//     public List<User> getAllUsers() {
-//         return userService.getAllUsers();
-//     }
-
-//     @GetMapping("/{id}")
-//     public Optional<User> getUser(@PathVariable Long id) {
-//         return userService.getUserById(id);
-//     }
-
-//     @PutMapping("/{id}")
-//     public String updateUser(@PathVariable Long id, @RequestBody User newUser) {
-//         Optional<User> user = userService.getUserById(id);
-//         if (user.isPresent()) {
-//             newUser.setId(id);
-//             userService.updateUser(newUser);
-//             return "User Updated Successfully";
-//         }
-//         return "User not found";
-//     }
-
-//     @DeleteMapping("/{id}")
-//     public String deleteUser(@PathVariable Long id) {
-//         Optional<User> user = userService.getUserById(id);
-//         if (user.isPresent()) {
-//             userService.deleteUser(id);
-//             return "User Deleted Successfully";
-//         }
-//         return "User not found";
-//     }
-// }
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    
+    private final UserService userService;
+    
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+    
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(@RequestBody User user) {
+        User registeredUser = userService.registerUser(user);
+        return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
+    }
+    
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = userService.getById(id);
+        return ResponseEntity.ok(user);
+    }
+    
+    @GetMapping("/email/{email}")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        User user = userService.findByEmail(email);
+        return ResponseEntity.ok(user);
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+        User updatedUser = userService.updateUser(id, user);
+        return ResponseEntity.ok(updatedUser);
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+}

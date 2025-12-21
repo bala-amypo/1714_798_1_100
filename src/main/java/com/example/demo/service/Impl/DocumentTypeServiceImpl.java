@@ -1,5 +1,4 @@
 package com.example.demo.service;
-
 import com.example.demo.model.DocumentType;
 import com.example.demo.repository.DocumentTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +19,10 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     
     @Override
     public DocumentType createDocumentType(DocumentType type) {
-        // Enforce unique typeName
         if (documentTypeRepository.existsByTypeName(type.getTypeName())) {
-            throw new RuntimeException("Duplicate document type name");
+            throw new RuntimeException("Duplicate document type name: " + type.getTypeName());
         }
         
-        // Ensure weight is not negative
         if (type.getWeight() < 0) {
             type.setWeight(0);
         }
@@ -41,6 +38,38 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     @Override
     public DocumentType getDocumentType(Long id) {
         return documentTypeRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Document type not found"));
+            .orElseThrow(() -> new RuntimeException("Document type not found with ID: " + id));
+    }
+    
+    @Override
+    public DocumentType updateDocumentType(Long id, DocumentType type) {
+        DocumentType existingType = getDocumentType(id);
+        
+        if (!existingType.getTypeName().equals(type.getTypeName()) && 
+            documentTypeRepository.existsByTypeName(type.getTypeName())) {
+            throw new RuntimeException("Duplicate document type name: " + type.getTypeName());
+        }
+        
+        existingType.setTypeName(type.getTypeName());
+        existingType.setDescription(type.getDescription());
+        existingType.setRequired(type.getRequired());
+        existingType.setWeight(type.getWeight());
+        
+        if (existingType.getWeight() < 0) {
+            existingType.setWeight(0);
+        }
+        
+        return documentTypeRepository.save(existingType);
+    }
+    
+    @Override
+    public void deleteDocumentType(Long id) {
+        DocumentType documentType = getDocumentType(id);
+        documentTypeRepository.delete(documentType);
+    }
+    
+    @Override
+    public List<DocumentType> getRequiredDocumentTypes() {
+        return documentTypeRepository.findByRequiredTrue();
     }
 }

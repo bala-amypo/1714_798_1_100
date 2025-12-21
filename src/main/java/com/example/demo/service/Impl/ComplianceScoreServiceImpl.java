@@ -1,5 +1,4 @@
 package com.example.demo.service;
-
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
         List<DocumentType> requiredTypes = documentTypeRepository.findByRequiredTrue();
         List<VendorDocument> vendorDocuments = vendorDocumentRepository.findByVendor(vendor);
         
-        // Calculate score
         double score = calculateComplianceScore(requiredTypes, vendorDocuments);
         
         if (score < 0) {
@@ -70,15 +68,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
             
             boolean hasValidDocument = vendorDocuments.stream()
                 .filter(doc -> doc.getDocumentType().getId().equals(requiredType.getId()))
-                .anyMatch(doc -> {
-                    if (doc.getIsValid() != null && !doc.getIsValid()) {
-                        return false;
-                    }
-                    if (doc.getExpiryDate() != null && doc.getExpiryDate().isBefore(LocalDate.now())) {
-                        return false;
-                    }
-                    return true;
-                });
+                .anyMatch(doc -> doc.getIsValid() == null || doc.getIsValid());
             
             if (hasValidDocument) {
                 achievedWeight += requiredType.getWeight();
@@ -97,12 +87,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
             .count();
         
         if (expiredCount > 0) {
-            double penalty = Math.min(expiredCount * 10, 50);
-            score -= penalty;
-        }
-        
-        if (achievedWeight == totalWeight) {
-            score += 5;
+            score -= (expiredCount * 10);
         }
         
         return Math.max(0.0, Math.min(100.0, score));
