@@ -10,15 +10,19 @@ public class JwtUtil {
     private final Key key;
     private final long validityInMs;
 
+    // REQUIRED CONSTRUCTOR
     public JwtUtil(String secret, long validityInMs) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
         this.validityInMs = validityInMs;
     }
 
+    // REQUIRED METHOD - Adapted to include Authentication parameter
     public String generateToken(Authentication authentication, Long userId, String email, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + validityInMs);
 
+        // The 'authentication' parameter is available if needed later.
+        // Your working project's token structure is a good model.
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
