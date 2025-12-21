@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDateTime;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,96 +14,85 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class AuthController {
     
+    private final UserService userService;
+    
     @Autowired
-    private UserService userService;
+    public AuthController(UserService userService) {
+        this.userService = userService;
+    }
     
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody Map<String, String> userData) {
+    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User user) {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            String fullName = userData.get("fullName");
-            String email = userData.get("email");
-            String password = userData.get("password");
-            String role = userData.get("role");
-            
-            // Validate required fields
-            if (fullName == null || fullName.isEmpty() || 
-                email == null || email.isEmpty() || 
-                password == null || password.isEmpty()) {
-                response.put("success", false);
-                response.put("message", "fullName, email, and password are required");
-                return ResponseEntity.badRequest().body(response);
-            }
-            
             // Check if email already exists
-            User existingUser = userService.findByEmail(email);
+            User existingUser = userService.findByEmail(user.getEmail());
             if (existingUser != null) {
                 response.put("success", false);
                 response.put("message", "Email already exists");
                 return ResponseEntity.badRequest().body(response);
             }
             
-            // Create new user
-            User user = new User();
-            user.setFullName(fullName);
-            user.setEmail(email);
-            user.setPassword(password); // Store plain text for now
-            user.setRole(role != null ? role : "USER");
-            user.setCreatedAt(LocalDateTime.now());
+            // Set default role if not provided
+            if (user.getRole() == null || user.getRole().isEmpty()) {
+                user.setRole("USER");
+            }
             
             // Save the user
             User registeredUser = userService.registerUser(user);
             
-            // Remove password from response
+            // Return success response without password
             registeredUser.setPassword(null);
-            
             response.put("success", true);
             response.put("message", "User registered successfully");
             response.put("user", registeredUser);
             
-            return ResponseEntity.ok(response);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
             
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Registration failed: " + e.getMessage());
-            response.put("error", e.toString());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.badRequest().body(response);
         }
     }
     
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginData) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody User loginRequest) {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            String email = loginData.get("email");
-            String password = loginData.get("password");
+            String email = loginRequest.getEmail();
+            String password = loginRequest.getPassword();
             
-            if (email == null || password == null) {
+            if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
                 response.put("success", false);
                 response.put("message", "Email and password are required");
                 return ResponseEntity.badRequest().body(response);
             }
             
+            // Find user by email
             User user = userService.findByEmail(email);
             
             if (user == null) {
                 response.put("success", false);
-                response.put("message", "User not found");
+                response.put("message", "Invalid email or password");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
-            // Simple password check (for testing only)
+            // In a real application, you would hash the password and compare
+            // For now, doing basic comparison
             if (user.getPassword().equals(password)) {
-                user.setPassword(null); // Remove password from response
+                // Return user data (without password for security)
+                user.setPassword(null);
                 response.put("success", true);
                 response.put("message", "Login successful");
                 response.put("user", user);
+                
                 return ResponseEntity.ok(response);
             } else {
                 response.put("success", false);
-                response.put("message", "Invalid password");
+                response.put("message", "Invalid email or password");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
@@ -114,9 +103,21 @@ public class AuthController {
         }
     }
     
-    // Simple health check
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Auth endpoint is working!");
+    @GetMapping("/check-email/{email}")
+    public ResponseEntity<Map<String, Object>> checkEmailExists(@PathVariable String email) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            User user = userService.findByEmail(email);
+            response.put("exists", user != null);
+            response.put("message", user != null ? "Email already exists" : "Email available");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            response.put("exists", false);
+            response.put("message", "Error checking email");
+            return ResponseEntity.ok(response);
+        }
     }
 }
