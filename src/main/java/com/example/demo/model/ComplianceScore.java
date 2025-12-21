@@ -1,3 +1,4 @@
+// com.example.demo.model.ComplianceScore.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
@@ -11,39 +12,26 @@ public class ComplianceScore {
     private Long id;
     
     @OneToOne
-    @JoinColumn(name = "vendor_id", unique = true, nullable = false)
+    @JoinColumn(name = "vendor_id", unique = true)
     private Vendor vendor;
     
-    @Column(nullable = false)
+    @Column(name = "score_value")
     private Double scoreValue;
     
-    @Column(nullable = false)
+    @Column(name = "last_evaluated")
     private LocalDateTime lastEvaluated;
     
-    @Column(nullable = false)
-    private String rating; // EXCELLENT, GOOD, POOR, NON_COMPLIANT
+    private String rating;
     
-    public ComplianceScore() {}
-    
-    public ComplianceScore(Vendor vendor, Double scoreValue, LocalDateTime lastEvaluated, String rating) {
-        this.vendor = vendor;
-        this.scoreValue = scoreValue;
-        this.lastEvaluated = lastEvaluated;
-        this.rating = rating;
-    }
-    
+    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    
     public Vendor getVendor() { return vendor; }
     public void setVendor(Vendor vendor) { this.vendor = vendor; }
-    
     public Double getScoreValue() { return scoreValue; }
     public void setScoreValue(Double scoreValue) { this.scoreValue = scoreValue; }
-    
     public LocalDateTime getLastEvaluated() { return lastEvaluated; }
     public void setLastEvaluated(LocalDateTime lastEvaluated) { this.lastEvaluated = lastEvaluated; }
-    
     public String getRating() { return rating; }
     public void setRating(String rating) { this.rating = rating; }
 }

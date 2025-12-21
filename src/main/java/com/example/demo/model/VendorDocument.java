@@ -1,3 +1,4 @@
+// com.example.demo.model.VendorDocument.java
 package com.example.demo.model;
 
 import jakarta.persistence.*;
@@ -19,66 +20,52 @@ public class VendorDocument {
     @JoinColumn(name = "document_type_id", nullable = false)
     private DocumentType documentType;
     
-    @Column(nullable = false)
+    @Column(name = "file_url", nullable = false)
     private String fileUrl;
     
-    @Column(nullable = false)
+    @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
     
+    @Column(name = "expiry_date")
     private LocalDate expiryDate;
     
-    @Column(nullable = false)
     private Boolean isValid;
     
     @PrePersist
     protected void onCreate() {
         uploadedAt = LocalDateTime.now();
-        // Auto-set isValid based on expiry date
-        if (expiryDate != null) {
-            isValid = !expiryDate.isBefore(LocalDate.now());
-        } else {
-            isValid = true;
-        }
+        validateDocument();
     }
     
     @PreUpdate
     protected void onUpdate() {
-        // Re-validate on update
-        if (expiryDate != null) {
-            isValid = !expiryDate.isBefore(LocalDate.now());
-        } else {
+        validateDocument();
+    }
+    
+    private void validateDocument() {
+        if (expiryDate == null || expiryDate.isAfter(LocalDate.now())) {
             isValid = true;
+        } else {
+            isValid = false;
         }
     }
     
-    public VendorDocument() {}
-    
+    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    
     public Vendor getVendor() { return vendor; }
     public void setVendor(Vendor vendor) { this.vendor = vendor; }
-    
     public DocumentType getDocumentType() { return documentType; }
     public void setDocumentType(DocumentType documentType) { this.documentType = documentType; }
-    
     public String getFileUrl() { return fileUrl; }
     public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
-    
     public LocalDateTime getUploadedAt() { return uploadedAt; }
     public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
-    
     public LocalDate getExpiryDate() { return expiryDate; }
     public void setExpiryDate(LocalDate expiryDate) { 
         this.expiryDate = expiryDate;
-        // Update isValid when expiryDate is set
-        if (expiryDate != null) {
-            this.isValid = !expiryDate.isBefore(LocalDate.now());
-        } else {
-            this.isValid = true;
-        }
+        validateDocument();
     }
-    
     public Boolean getIsValid() { return isValid; }
     public void setIsValid(Boolean isValid) { this.isValid = isValid; }
 }
