@@ -1,6 +1,5 @@
 package com.example.demo.servlet;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,12 +9,12 @@ import java.io.PrintWriter;
 
 @WebServlet("/health")
 public class HealthServlet extends HttpServlet {
+    
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("text/plain");
-        resp.setStatus(200);
+        resp.setStatus(HttpServletResponse.SC_OK);
         PrintWriter out = resp.getWriter();
-        out.print("OK");
+        out.println("OK");
     }
 }
