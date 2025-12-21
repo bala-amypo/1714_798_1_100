@@ -1,5 +1,4 @@
 package com.example.demo.controller;
-
 import com.example.demo.model.ComplianceScore;
 import com.example.demo.service.ComplianceScoreService;
 import org.springframework.beans.factory.annotation.Autowired;
