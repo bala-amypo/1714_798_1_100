@@ -1,7 +1,5 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
 import com.example.demo.service.ComplianceScoreService;
@@ -10,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -31,7 +30,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     @Override
     public ComplianceScore evaluateVendor(Long vendorId) {
         Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id: " + vendorId));
+                .orElseThrow(() -> new NoSuchElementException("Vendor not found with id: " + vendorId));
         
         List<DocumentType> requiredTypes = documentTypeRepository.findByRequiredTrue();
         List<VendorDocument> vendorDocuments = vendorDocumentRepository.findByVendor(vendor);
@@ -39,7 +38,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
         double scoreValue = ComplianceScoringEngine.calculateScore(requiredTypes, vendorDocuments);
         
         if (scoreValue < 0) {
-            throw new ValidationException("Compliance score cannot be negative");
+            throw new IllegalArgumentException("Compliance score cannot be negative");
         }
         
         String rating = ComplianceScoringEngine.deriveRating(scoreValue);
@@ -61,7 +60,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     @Override
     public ComplianceScore getScore(Long vendorId) {
         return complianceScoreRepository.findByVendorId(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Score not found for vendor id: " + vendorId));
+                .orElseThrow(() -> new NoSuchElementException("Score not found for vendor id: " + vendorId));
     }
     
     @Override
@@ -72,7 +71,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     @Override
     public void deleteScore(Long id) {
         if (!complianceScoreRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Compliance score not found with id: " + id);
+            throw new NoSuchElementException("Compliance score not found with id: " + id);
         }
         complianceScoreRepository.deleteById(id);
     }

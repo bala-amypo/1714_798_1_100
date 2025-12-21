@@ -1,7 +1,5 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
 import com.example.demo.model.DocumentType;
 import com.example.demo.model.Vendor;
 import com.example.demo.model.VendorDocument;
@@ -14,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
@@ -31,17 +30,17 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
     @Override
     public VendorDocument uploadDocument(Long vendorId, Long typeId, VendorDocument document) {
         Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id: " + vendorId));
+                .orElseThrow(() -> new NoSuchElementException("Vendor not found with id: " + vendorId));
         
         DocumentType documentType = documentTypeRepository.findById(typeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Document type not found with id: " + typeId));
+                .orElseThrow(() -> new NoSuchElementException("Document type not found with id: " + typeId));
         
         if (document.getFileUrl() == null || document.getFileUrl().trim().isEmpty()) {
-            throw new ValidationException("File URL is required");
+            throw new IllegalArgumentException("File URL is required");
         }
         
         if (document.getExpiryDate() != null && document.getExpiryDate().isBefore(LocalDate.now())) {
-            throw new ValidationException("Expiry date cannot be in the past");
+            throw new IllegalArgumentException("Expiry date cannot be in the past");
         }
         
         document.setVendor(vendor);
@@ -53,7 +52,7 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
     @Override
     public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
         if (!vendorRepository.existsById(vendorId)) {
-            throw new ResourceNotFoundException("Vendor not found with id: " + vendorId);
+            throw new NoSuchElementException("Vendor not found with id: " + vendorId);
         }
         return vendorDocumentRepository.findByVendorId(vendorId);
     }
@@ -61,13 +60,13 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
     @Override
     public VendorDocument getDocument(Long id) {
         return vendorDocumentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor document not found with id: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Vendor document not found with id: " + id));
     }
     
     @Override
     public void deleteDocument(Long id) {
         if (!vendorDocumentRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Vendor document not found with id: " + id);
+            throw new NoSuchElementException("Vendor document not found with id: " + id);
         }
         vendorDocumentRepository.deleteById(id);
     }
