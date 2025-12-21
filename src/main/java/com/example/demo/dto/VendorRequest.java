@@ -1,4 +1,3 @@
-// com.example.demo.dto.VendorRequest.java
 package com.example.demo.dto;
 
 public class VendorRequest {
@@ -7,7 +6,6 @@ public class VendorRequest {
     private String phone;
     private String industry;
     
-    // Getters and setters
     public String getVendorName() { return vendorName; }
     public void setVendorName(String vendorName) { this.vendorName = vendorName; }
     public String getEmail() { return email; }

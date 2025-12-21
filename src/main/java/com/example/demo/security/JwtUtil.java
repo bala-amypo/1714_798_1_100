@@ -1,4 +1,3 @@
-// com.example.demo.security.JwtUtil.java
 package com.example.demo.security;
 
 import io.jsonwebtoken.*;

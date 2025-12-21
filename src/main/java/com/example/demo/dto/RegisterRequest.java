@@ -1,4 +1,3 @@
-// com.example.demo.dto.RegisterRequest.java
 package com.example.demo.dto;
 
 public class RegisterRequest {
@@ -6,7 +5,6 @@ public class RegisterRequest {
     private String email;
     private String password;
     
-    // Getters and setters
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
     public String getEmail() { return email; }
