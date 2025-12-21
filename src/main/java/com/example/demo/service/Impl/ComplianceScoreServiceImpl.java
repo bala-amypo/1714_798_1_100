@@ -1,64 +1,66 @@
-package com.example.demo.service.impl;
+package com.example.demo.service;
 
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
-import com.example.demo.service.ComplianceScoreService;
 import com.example.demo.util.ComplianceScoringEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 @Transactional
 public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     
-    @Autowired
-    private VendorRepository vendorRepository;
+    private final VendorRepository vendorRepository;
+    private final DocumentTypeRepository documentTypeRepository;
+    private final VendorDocumentRepository vendorDocumentRepository;
+    private final ComplianceScoreRepository complianceScoreRepository;
+    private final ComplianceScoringEngine scoringEngine;
     
     @Autowired
-    private DocumentTypeRepository documentTypeRepository;
-    
-    @Autowired
-    private VendorDocumentRepository vendorDocumentRepository;
-    
-    @Autowired
-    private ComplianceScoreRepository complianceScoreRepository;
+    public ComplianceScoreServiceImpl(
+            VendorRepository vendorRepository,
+            DocumentTypeRepository documentTypeRepository,
+            VendorDocumentRepository vendorDocumentRepository,
+            ComplianceScoreRepository complianceScoreRepository) {
+        this.vendorRepository = vendorRepository;
+        this.documentTypeRepository = documentTypeRepository;
+        this.vendorDocumentRepository = vendorDocumentRepository;
+        this.complianceScoreRepository = complianceScoreRepository;
+        this.scoringEngine = new ComplianceScoringEngine();
+    }
     
     @Override
     public ComplianceScore evaluateVendor(Long vendorId) {
+        // Load vendor
         Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new NoSuchElementException("Vendor not found with id: " + vendorId));
+            .orElseThrow(() -> new RuntimeException("Vendor not found"));
         
+        // Load required document types
         List<DocumentType> requiredTypes = documentTypeRepository.findByRequiredTrue();
+        
+        // Load vendor documents
         List<VendorDocument> vendorDocuments = vendorDocumentRepository.findByVendor(vendor);
         
-        double scoreValue = ComplianceScoringEngine.calculateScore(requiredTypes, vendorDocuments);
+        // Compute score using scoring engine
+        double score = scoringEngine.calculateScore(vendor, requiredTypes, vendorDocuments);
         
-        if (scoreValue < 0) {
-            throw new IllegalArgumentException("Compliance score cannot be negative");
+        // Validate score
+        if (score < 0) {
+            throw new RuntimeException("Compliance score cannot be negative");
         }
         
-        String rating = ComplianceScoringEngine.deriveRating(scoreValue);
+        // Get rating
+        String rating = scoringEngine.deriveRating(score);
         
-        Optional<ComplianceScore> existingScore = complianceScoreRepository.findByVendorId(vendorId);
-        ComplianceScore complianceScore;
+        // Create or update ComplianceScore
+        ComplianceScore complianceScore = complianceScoreRepository.findByVendorId(vendorId)
+            .orElse(new ComplianceScore());
         
-        if (existingScore.isPresent()) {
-            complianceScore = existingScore.get();
-            complianceScore.setScoreValue(scoreValue);
-            complianceScore.setRating(rating);
-            complianceScore.setEvaluationDate(LocalDateTime.now());
-        } else {
-            complianceScore = new ComplianceScore();
-            complianceScore.setVendor(vendor);
-            complianceScore.setScoreValue(scoreValue);
-            complianceScore.setRating(rating);
-            complianceScore.setEvaluationDate(LocalDateTime.now());
-        }
+        complianceScore.setVendor(vendor);
+        complianceScore.setScoreValue(score);
+        complianceScore.setRating(rating);
         
         return complianceScoreRepository.save(complianceScore);
     }
@@ -66,30 +68,11 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     @Override
     public ComplianceScore getScore(Long vendorId) {
         return complianceScoreRepository.findByVendorId(vendorId)
-                .orElseThrow(() -> new NoSuchElementException("Score not found for vendor id: " + vendorId));
-    }
-    
-    @Override
-    public ComplianceScore getScoreByVendorId(Long vendorId) {
-        return getScore(vendorId);
-    }
-    
-    @Override
-    public ComplianceScore getScoreById(Long id) {
-        return complianceScoreRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Compliance score not found with id: " + id));
+            .orElseThrow(() -> new RuntimeException("Score not found"));
     }
     
     @Override
     public List<ComplianceScore> getAllScores() {
         return complianceScoreRepository.findAll();
-    }
-    
-    @Override
-    public void deleteScore(Long id) {
-        if (!complianceScoreRepository.existsById(id)) {
-            throw new NoSuchElementException("Compliance score not found with id: " + id);
-        }
-        complianceScoreRepository.deleteById(id);
     }
 }

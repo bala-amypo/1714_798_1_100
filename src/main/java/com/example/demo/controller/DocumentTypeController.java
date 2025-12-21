@@ -1,52 +1,39 @@
 package com.example.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import com.example.demo.model.DocumentType;
 import com.example.demo.service.DocumentTypeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/document-types")
 public class DocumentTypeController {
-
+    
+    private final DocumentTypeService documentTypeService;
+    
     @Autowired
-    DocumentTypeService documentTypeService;
-
+    public DocumentTypeController(DocumentTypeService documentTypeService) {
+        this.documentTypeService = documentTypeService;
+    }
+    
     @PostMapping
-    public DocumentType createDocumentType(@RequestBody DocumentType documentType) {
-        return documentTypeService.createDocumentType(documentType);
+    public ResponseEntity<DocumentType> createDocumentType(@RequestBody DocumentType documentType) {
+        DocumentType createdType = documentTypeService.createDocumentType(documentType);
+        return new ResponseEntity<>(createdType, HttpStatus.CREATED);
     }
-
+    
     @GetMapping
-    public List<DocumentType> getAllDocumentTypes() {
-        return documentTypeService.getAllDocumentTypes();
+    public ResponseEntity<List<DocumentType>> getAllDocumentTypes() {
+        List<DocumentType> types = documentTypeService.getAllDocumentTypes();
+        return ResponseEntity.ok(types);
     }
-
+    
     @GetMapping("/{id}")
-    public Optional<DocumentType> getDocumentType(@PathVariable Long id) {
-        return documentTypeService.getDocumentTypeById(id);
-    }
-
-    @PutMapping("/{id}")
-    public String updateDocumentType(@PathVariable Long id, @RequestBody DocumentType newDocumentType) {
-        Optional<DocumentType> documentType = documentTypeService.getDocumentTypeById(id);
-        if (documentType.isPresent()) {
-            newDocumentType.setId(id);
-            documentTypeService.updateDocumentType(newDocumentType);
-            return "Document Type Updated Successfully";
-        }
-        return "Document Type not found";
-    }
-
-    @DeleteMapping("/{id}")
-    public String deleteDocumentType(@PathVariable Long id) {
-        Optional<DocumentType> documentType = documentTypeService.getDocumentTypeById(id);
-        if (documentType.isPresent()) {
-            documentTypeService.deleteDocumentType(id);
-            return "Document Type Deleted Successfully";
-        }
-        return "Document Type not found";
+    public ResponseEntity<DocumentType> getDocumentTypeById(@PathVariable Long id) {
+        DocumentType type = documentTypeService.getDocumentType(id);
+        return ResponseEntity.ok(type);
     }
 }

@@ -1,52 +1,39 @@
 package com.example.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import com.example.demo.model.Vendor;
 import com.example.demo.service.VendorService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/vendors")
 public class VendorController {
-
+    
+    private final VendorService vendorService;
+    
     @Autowired
-    VendorService vendorService;
-
+    public VendorController(VendorService vendorService) {
+        this.vendorService = vendorService;
+    }
+    
     @PostMapping
-    public Vendor createVendor(@RequestBody Vendor vendor) {
-        return vendorService.createVendor(vendor);
+    public ResponseEntity<Vendor> createVendor(@RequestBody Vendor vendor) {
+        Vendor createdVendor = vendorService.createVendor(vendor);
+        return new ResponseEntity<>(createdVendor, HttpStatus.CREATED);
     }
-
+    
     @GetMapping
-    public List<Vendor> getAllVendors() {
-        return vendorService.getAllVendors();
+    public ResponseEntity<List<Vendor>> getAllVendors() {
+        List<Vendor> vendors = vendorService.getAllVendors();
+        return ResponseEntity.ok(vendors);
     }
-
+    
     @GetMapping("/{id}")
-    public Optional<Vendor> getVendor(@PathVariable Long id) {
-        return vendorService.getVendorById(id);
-    }
-
-    @PutMapping("/{id}")
-    public String updateVendor(@PathVariable Long id, @RequestBody Vendor newVendor) {
-        Optional<Vendor> vendor = vendorService.getVendorById(id);
-        if (vendor.isPresent()) {
-            newVendor.setId(id);
-            vendorService.updateVendor(newVendor);
-            return "Vendor Updated Successfully";
-        }
-        return "Vendor not found";
-    }
-
-    @DeleteMapping("/{id}")
-    public String deleteVendor(@PathVariable Long id) {
-        Optional<Vendor> vendor = vendorService.getVendorById(id);
-        if (vendor.isPresent()) {
-            vendorService.deleteVendor(id);
-            return "Vendor Deleted Successfully";
-        }
-        return "Vendor not found";
+    public ResponseEntity<Vendor> getVendorById(@PathVariable Long id) {
+        Vendor vendor = vendorService.getVendor(id);
+        return ResponseEntity.ok(vendor);
     }
 }

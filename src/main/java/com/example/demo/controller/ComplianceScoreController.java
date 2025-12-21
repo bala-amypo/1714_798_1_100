@@ -1,46 +1,39 @@
 package com.example.demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import com.example.demo.model.ComplianceScore;
 import com.example.demo.service.ComplianceScoreService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/compliance-scores")
 public class ComplianceScoreController {
-
+    
+    private final ComplianceScoreService complianceScoreService;
+    
     @Autowired
-    ComplianceScoreService complianceScoreService;
-
+    public ComplianceScoreController(ComplianceScoreService complianceScoreService) {
+        this.complianceScoreService = complianceScoreService;
+    }
+    
     @PostMapping("/evaluate")
-    public ComplianceScore evaluateVendor(@RequestParam Long vendorId) {
-        return complianceScoreService.evaluateVendor(vendorId);
+    public ResponseEntity<ComplianceScore> evaluateVendor(@RequestParam Long vendorId) {
+        ComplianceScore score = complianceScoreService.evaluateVendor(vendorId);
+        return new ResponseEntity<>(score, HttpStatus.CREATED);
     }
-
-    @GetMapping
-    public List<ComplianceScore> getAllScores() {
-        return complianceScoreService.getAllScores();
-    }
-
+    
     @GetMapping("/vendor/{vendorId}")
-    public Optional<ComplianceScore> getScoreByVendor(@PathVariable Long vendorId) {
-        return complianceScoreService.getScoreByVendorId(vendorId);
+    public ResponseEntity<ComplianceScore> getScoreByVendor(@PathVariable Long vendorId) {
+        ComplianceScore score = complianceScoreService.getScore(vendorId);
+        return ResponseEntity.ok(score);
     }
-
-    @GetMapping("/{id}")
-    public Optional<ComplianceScore> getScore(@PathVariable Long id) {
-        return complianceScoreService.getScoreById(id);
-    }
-
-    @DeleteMapping("/{id}")
-    public String deleteScore(@PathVariable Long id) {
-        Optional<ComplianceScore> score = complianceScoreService.getScoreById(id);
-        if (score.isPresent()) {
-            complianceScoreService.deleteScore(id);
-            return "Compliance Score Deleted Successfully";
-        }
-        return "Compliance Score not found";
+    
+    @GetMapping
+    public ResponseEntity<List<ComplianceScore>> getAllScores() {
+        List<ComplianceScore> scores = complianceScoreService.getAllScores();
+        return ResponseEntity.ok(scores);
     }
 }
