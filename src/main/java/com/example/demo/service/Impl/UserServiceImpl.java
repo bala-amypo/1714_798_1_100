@@ -1,8 +1,8 @@
 package com.example.demo.service;
+
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -12,12 +12,10 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
     
     @Override
@@ -26,7 +24,8 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Duplicate email: " + user.getEmail());
         }
         
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // No password encoding
+        // user.setPassword(passwordEncoder.encode(user.getPassword()));
         
         if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
@@ -64,7 +63,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setFullName(user.getFullName());
         existingUser.setEmail(user.getEmail());
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            existingUser.setPassword(user.getPassword()); // No encoding
         }
         if (user.getRole() != null && !user.getRole().isEmpty()) {
             existingUser.setRole(user.getRole());
