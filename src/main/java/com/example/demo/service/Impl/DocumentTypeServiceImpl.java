@@ -31,8 +31,41 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     }
     
     @Override
+    public DocumentType getDocumentTypeById(Long id) {
+        return getDocumentType(id);
+    }
+    
+    @Override
     public List<DocumentType> getAllDocumentTypes() {
         return documentTypeRepository.findAll();
+    }
+    
+    @Override
+    public DocumentType updateDocumentType(DocumentType type) {
+        DocumentType existingType = getDocumentType(type.getId());
+        
+        // Update fields if provided
+        if (type.getTypeName() != null && !type.getTypeName().equals(existingType.getTypeName())) {
+            // Check if new type name already exists (excluding current type)
+            if (documentTypeRepository.existsByTypeName(type.getTypeName())) {
+                throw new IllegalArgumentException("Document type name already exists: " + type.getTypeName());
+            }
+            existingType.setTypeName(type.getTypeName());
+        }
+        
+        if (type.getDescription() != null) {
+            existingType.setDescription(type.getDescription());
+        }
+        
+        if (type.getRequired() != null) {
+            existingType.setRequired(type.getRequired());
+        }
+        
+        if (type.getValidityPeriod() != null) {
+            existingType.setValidityPeriod(type.getValidityPeriod());
+        }
+        
+        return documentTypeRepository.save(existingType);
     }
     
     @Override

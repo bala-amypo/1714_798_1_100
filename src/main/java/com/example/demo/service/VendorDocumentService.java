@@ -2,11 +2,13 @@ package com.example.demo.service;
 
 import com.example.demo.model.VendorDocument;
 import java.util.List;
-import java.util.Optional;
 
 public interface VendorDocumentService {
     VendorDocument uploadDocument(Long vendorId, Long typeId, VendorDocument document);
     List<VendorDocument> getDocumentsForVendor(Long vendorId);
     VendorDocument getDocument(Long id);
+    List<VendorDocument> getAllDocuments(); // Add this
+    VendorDocument getDocumentById(Long id); // Add this
+    VendorDocument updateDocument(Long id, Long vendorId, Long typeId, VendorDocument document); // Add this
     void deleteDocument(Long id);
 }

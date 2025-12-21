@@ -64,6 +64,73 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
     }
     
     @Override
+    public List<VendorDocument> getAllDocuments() {
+        return vendorDocumentRepository.findAll();
+    }
+    
+    @Override
+    public VendorDocument getDocumentById(Long id) {
+        return getDocument(id);
+    }
+    
+    @Override
+    public VendorDocument updateDocument(Long id, Long vendorId, Long typeId, VendorDocument document) {
+        VendorDocument existingDocument = getDocument(id);
+        
+        // Update vendor if provided and different
+        if (vendorId != null && !vendorId.equals(existingDocument.getVendor().getId())) {
+            Vendor vendor = vendorRepository.findById(vendorId)
+                    .orElseThrow(() -> new NoSuchElementException("Vendor not found with id: " + vendorId));
+            existingDocument.setVendor(vendor);
+        }
+        
+        // Update document type if provided and different
+        if (typeId != null && !typeId.equals(existingDocument.getDocumentType().getId())) {
+            DocumentType documentType = documentTypeRepository.findById(typeId)
+                    .orElseThrow(() -> new NoSuchElementException("Document type not found with id: " + typeId));
+            existingDocument.setDocumentType(documentType);
+        }
+        
+        // Update other fields if provided
+        if (document.getFileUrl() != null && !document.getFileUrl().trim().isEmpty()) {
+            existingDocument.setFileUrl(document.getFileUrl());
+        }
+        
+        if (document.getFileName() != null) {
+            existingDocument.setFileName(document.getFileName());
+        }
+        
+        if (document.getUploadDate() != null) {
+            existingDocument.setUploadDate(document.getUploadDate());
+        }
+        
+        if (document.getExpiryDate() != null) {
+            if (document.getExpiryDate().isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Expiry date cannot be in the past");
+            }
+            existingDocument.setExpiryDate(document.getExpiryDate());
+        }
+        
+        if (document.getStatus() != null) {
+            existingDocument.setStatus(document.getStatus());
+        }
+        
+        if (document.getVerifiedBy() != null) {
+            existingDocument.setVerifiedBy(document.getVerifiedBy());
+        }
+        
+        if (document.getVerificationDate() != null) {
+            existingDocument.setVerificationDate(document.getVerificationDate());
+        }
+        
+        if (document.getNotes() != null) {
+            existingDocument.setNotes(document.getNotes());
+        }
+        
+        return vendorDocumentRepository.save(existingDocument);
+    }
+    
+    @Override
     public void deleteDocument(Long id) {
         if (!vendorDocumentRepository.existsById(id)) {
             throw new NoSuchElementException("Vendor document not found with id: " + id);

@@ -35,6 +35,18 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
+    public User login(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoSuchElementException("Invalid email or password"));
+        
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+        
+        return user;
+    }
+    
+    @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("User not found with email: " + email));
@@ -44,6 +56,32 @@ public class UserServiceImpl implements UserService {
     public User getById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
+    }
+    
+    @Override
+    public User getUserById(Long id) {
+        return getById(id);
+    }
+    
+    @Override
+    public User updateUser(User user) {
+        User existingUser = getById(user.getId());
+        
+        // Update fields if provided
+        if (user.getUsername() != null) {
+            existingUser.setUsername(user.getUsername());
+        }
+        if (user.getEmail() != null && !user.getEmail().equals(existingUser.getEmail())) {
+            if (userRepository.existsByEmail(user.getEmail())) {
+                throw new IllegalArgumentException("Email already exists: " + user.getEmail());
+            }
+            existingUser.setEmail(user.getEmail());
+        }
+        if (user.getRole() != null) {
+            existingUser.setRole(user.getRole());
+        }
+        
+        return userRepository.save(existingUser);
     }
     
     @Override

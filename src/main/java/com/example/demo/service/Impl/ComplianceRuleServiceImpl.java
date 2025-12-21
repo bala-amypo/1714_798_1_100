@@ -33,8 +33,50 @@ public class ComplianceRuleServiceImpl implements ComplianceRuleService {
     }
     
     @Override
+    public ComplianceRule getRuleById(Long id) {
+        return getRule(id);
+    }
+    
+    @Override
     public List<ComplianceRule> getAllRules() {
         return complianceRuleRepository.findAll();
+    }
+    
+    @Override
+    public ComplianceRule updateRule(ComplianceRule rule) {
+        ComplianceRule existingRule = getRule(rule.getId());
+        
+        // Update fields if provided
+        if (rule.getRuleName() != null && !rule.getRuleName().equals(existingRule.getRuleName())) {
+            // Check if new rule name already exists (excluding current rule)
+            if (complianceRuleRepository.findAll().stream()
+                .anyMatch(r -> r.getRuleName().equals(rule.getRuleName()) && !r.getId().equals(rule.getId()))) {
+                throw new IllegalArgumentException("Rule name already exists: " + rule.getRuleName());
+            }
+            existingRule.setRuleName(rule.getRuleName());
+        }
+        
+        if (rule.getDescription() != null) {
+            existingRule.setDescription(rule.getDescription());
+        }
+        
+        if (rule.getCategory() != null) {
+            existingRule.setCategory(rule.getCategory());
+        }
+        
+        if (rule.getSeverity() != null) {
+            existingRule.setSeverity(rule.getSeverity());
+        }
+        
+        if (rule.getThreshold() != null) {
+            existingRule.setThreshold(rule.getThreshold());
+        }
+        
+        if (rule.getIsActive() != null) {
+            existingRule.setIsActive(rule.getIsActive());
+        }
+        
+        return complianceRuleRepository.save(existingRule);
     }
     
     @Override

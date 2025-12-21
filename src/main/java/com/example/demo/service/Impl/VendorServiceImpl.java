@@ -31,8 +31,49 @@ public class VendorServiceImpl implements VendorService {
     }
     
     @Override
+    public Vendor getVendorById(Long id) {
+        return getVendor(id);
+    }
+    
+    @Override
     public List<Vendor> getAllVendors() {
         return vendorRepository.findAll();
+    }
+    
+    @Override
+    public Vendor updateVendor(Vendor vendor) {
+        Vendor existingVendor = getVendor(vendor.getId());
+        
+        // Update fields if provided
+        if (vendor.getVendorName() != null && !vendor.getVendorName().equals(existingVendor.getVendorName())) {
+            // Check if new vendor name already exists (excluding current vendor)
+            if (vendorRepository.existsByVendorName(vendor.getVendorName())) {
+                throw new IllegalArgumentException("Vendor name already exists: " + vendor.getVendorName());
+            }
+            existingVendor.setVendorName(vendor.getVendorName());
+        }
+        
+        if (vendor.getContactEmail() != null) {
+            existingVendor.setContactEmail(vendor.getContactEmail());
+        }
+        
+        if (vendor.getContactPhone() != null) {
+            existingVendor.setContactPhone(vendor.getContactPhone());
+        }
+        
+        if (vendor.getAddress() != null) {
+            existingVendor.setAddress(vendor.getAddress());
+        }
+        
+        if (vendor.getIndustry() != null) {
+            existingVendor.setIndustry(vendor.getIndustry());
+        }
+        
+        if (vendor.getStatus() != null) {
+            existingVendor.setStatus(vendor.getStatus());
+        }
+        
+        return vendorRepository.save(existingVendor);
     }
     
     @Override
