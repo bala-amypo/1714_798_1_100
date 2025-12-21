@@ -36,4 +36,16 @@ public class ComplianceScoreController {
         List<ComplianceScore> scores = complianceScoreService.getAllScores();
         return ResponseEntity.ok(scores);
     }
+    
+    @PutMapping("/vendor/{vendorId}")
+    public ResponseEntity<ComplianceScore> updateScore(@PathVariable Long vendorId, @RequestBody ComplianceScore score) {
+        ComplianceScore updatedScore = complianceScoreService.updateScore(vendorId, score);
+        return ResponseEntity.ok(updatedScore);
+    }
+    
+    @DeleteMapping("/vendor/{vendorId}")
+    public ResponseEntity<Void> deleteScore(@PathVariable Long vendorId) {
+        complianceScoreService.deleteScore(vendorId);
+        return ResponseEntity.noContent().build();
+    }
 }
