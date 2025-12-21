@@ -5,47 +5,41 @@ import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication", description = "Authentication endpoints")
 public class AuthController {
     
     private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
     
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-    
-    @Value("${jwt.validity}")
-    private long jwtValidity;
-    
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
+    public AuthController(AuthenticationManager authenticationManager,
+                         UserService userService,
+                         PasswordEncoder passwordEncoder,
+                         JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
     
     @PostMapping("/register")
-    @Operation(summary = "Register a new user")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         User user = new User();
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-        user.setRole("USER");
+        user.setFullName(registerRequest.getFullName());
+        user.setEmail(registerRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         
         User savedUser = userService.register(user);
         
@@ -57,18 +51,26 @@ public class AuthController {
     }
     
     @PostMapping("/login")
-    @Operation(summary = "Login user")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            new UsernamePasswordAuthenticationToken(
+                loginRequest.getEmail(),
+                loginRequest.getPassword()
+            )
         );
         
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
-        User user = userService.findByEmail(request.getEmail());
+        // Get the user - FIXED: Use Optional correctly
+        User user = userService.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
         
-        JwtUtil jwtUtilInstance = new JwtUtil(jwtSecret, jwtValidity);
-        String token = jwtUtilInstance.generateToken(authentication, user.getId(), user.getEmail(), user.getRole());
+        String token = jwtUtil.generateToken(
+            authentication,
+            user.getId(),
+            user.getEmail(),
+            user.getRole()
+        );
         
         Map<String, String> response = new HashMap<>();
         response.put("token", token);

@@ -1,4 +1,3 @@
-// com.example.demo.service.UserService.java
 package com.example.demo.service;
 
 import com.example.demo.model.User;
@@ -6,6 +5,6 @@ import java.util.Optional;
 
 public interface UserService {
     User register(User user);
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmail(String email); // Returns Optional
     User getUser(Long id);
 }
