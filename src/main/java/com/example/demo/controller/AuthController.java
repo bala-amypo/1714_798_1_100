@@ -58,14 +58,14 @@ public class AuthController {
     }
     
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody User loginRequest) {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            String email = loginRequest.get("email");
-            String password = loginRequest.get("password");
+            String email = loginRequest.getEmail();
+            String password = loginRequest.getPassword();
             
-            if (email == null || password == null) {
+            if (email == null || password == null || email.isEmpty() || password.isEmpty()) {
                 response.put("success", false);
                 response.put("message", "Email and password are required");
                 return ResponseEntity.badRequest().body(response);
@@ -81,8 +81,7 @@ public class AuthController {
             }
             
             // In a real application, you would hash the password and compare
-            // For simplicity, we'll do a basic string comparison
-            // NOTE: In production, use PasswordEncoder to hash and compare
+            // For now, doing basic comparison
             if (user.getPassword().equals(password)) {
                 // Return user data (without password for security)
                 user.setPassword(null);
