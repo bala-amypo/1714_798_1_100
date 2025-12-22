@@ -17,7 +17,6 @@ public class AuthController {
     @Autowired
     private UserService userService;
     
-    // For login, create a simple LoginRequest class
     static class LoginRequest {
         private String email;
         private String password;
@@ -33,15 +32,12 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // Set default role if not provided
             if (user.getRole() == null || user.getRole().isEmpty()) {
                 user.setRole("USER");
             }
             
-            // Save the user
             User registeredUser = userService.registerUser(user);
             
-            // Remove password from response
             registeredUser.setPassword(null);
             
             response.put("success", true);
@@ -65,7 +61,6 @@ public class AuthController {
             String email = loginRequest.getEmail();
             String password = loginRequest.getPassword();
             
-            // Find user by email
             User user = userService.findByEmail(email);
             
             if (user == null || !user.getPassword().equals(password)) {
@@ -74,7 +69,6 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
-            // Return user data (without password for security)
             user.setPassword(null);
             response.put("success", true);
             response.put("message", "Login successful");
