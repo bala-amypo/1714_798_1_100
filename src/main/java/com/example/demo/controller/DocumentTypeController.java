@@ -1,11 +1,15 @@
 package com.example.demo.controller;
+
+import com.example.demo.dto.DocumentTypeDTO;
 import com.example.demo.model.DocumentType;
 import com.example.demo.service.DocumentTypeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/document-types")
@@ -13,44 +17,44 @@ public class DocumentTypeController {
     
     private final DocumentTypeService documentTypeService;
     
-    @Autowired
     public DocumentTypeController(DocumentTypeService documentTypeService) {
         this.documentTypeService = documentTypeService;
     }
     
     @PostMapping
-    public ResponseEntity<DocumentType> createDocumentType(@RequestBody DocumentType documentType) {
-        DocumentType createdType = documentTypeService.createDocumentType(documentType);
-        return new ResponseEntity<>(createdType, HttpStatus.CREATED);
+    public ResponseEntity<DocumentTypeDTO> createDocumentType(@Valid @RequestBody DocumentTypeDTO documentTypeDTO) {
+        DocumentType documentType = new DocumentType();
+        documentType.setTypeName(documentTypeDTO.getTypeName());
+        documentType.setDescription(documentTypeDTO.getDescription());
+        documentType.setRequired(documentTypeDTO.getRequired());
+        documentType.setWeight(documentTypeDTO.getWeight());
+        
+        DocumentType savedType = documentTypeService.createDocumentType(documentType);
+        return new ResponseEntity<>(convertToDTO(savedType), HttpStatus.CREATED);
     }
     
     @GetMapping
-    public ResponseEntity<List<DocumentType>> getAllDocumentTypes() {
+    public ResponseEntity<List<DocumentTypeDTO>> getAllDocumentTypes() {
         List<DocumentType> types = documentTypeService.getAllDocumentTypes();
-        return ResponseEntity.ok(types);
+        List<DocumentTypeDTO> dtos = types.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentType> getDocumentTypeById(@PathVariable Long id) {
+    public ResponseEntity<DocumentTypeDTO> getDocumentType(@PathVariable Long id) {
         DocumentType type = documentTypeService.getDocumentType(id);
-        return ResponseEntity.ok(type);
+        return ResponseEntity.ok(convertToDTO(type));
     }
     
-    @GetMapping("/required")
-    public ResponseEntity<List<DocumentType>> getRequiredDocumentTypes() {
-        List<DocumentType> types = documentTypeService.getRequiredDocumentTypes();
-        return ResponseEntity.ok(types);
-    }
-    
-    @PutMapping("/{id}")
-    public ResponseEntity<DocumentType> updateDocumentType(@PathVariable Long id, @RequestBody DocumentType documentType) {
-        DocumentType updatedType = documentTypeService.updateDocumentType(id, documentType);
-        return ResponseEntity.ok(updatedType);
-    }
-    
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDocumentType(@PathVariable Long id) {
-        documentTypeService.deleteDocumentType(id);
-        return ResponseEntity.noContent().build();
+    private DocumentTypeDTO convertToDTO(DocumentType type) {
+        DocumentTypeDTO dto = new DocumentTypeDTO();
+        dto.setId(type.getId());
+        dto.setTypeName(type.getTypeName());
+        dto.setDescription(type.getDescription());
+        dto.setRequired(type.getRequired());
+        dto.setWeight(type.getWeight());
+        return dto;
     }
 }

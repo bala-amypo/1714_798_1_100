@@ -1,7 +1,9 @@
 package com.example.demo.service;
+
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.ValidationException;
 import com.example.demo.model.DocumentType;
 import com.example.demo.repository.DocumentTypeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -12,7 +14,6 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     
     private final DocumentTypeRepository documentTypeRepository;
     
-    @Autowired
     public DocumentTypeServiceImpl(DocumentTypeRepository documentTypeRepository) {
         this.documentTypeRepository = documentTypeRepository;
     }
@@ -20,11 +21,11 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     @Override
     public DocumentType createDocumentType(DocumentType type) {
         if (documentTypeRepository.existsByTypeName(type.getTypeName())) {
-            throw new RuntimeException("Duplicate document type name: " + type.getTypeName());
+            throw new ValidationException("Document type name already exists: " + type.getTypeName());
         }
         
         if (type.getWeight() < 0) {
-            type.setWeight(0);
+            throw new ValidationException("Weight must be non-negative");
         }
         
         return documentTypeRepository.save(type);
@@ -38,38 +39,6 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     @Override
     public DocumentType getDocumentType(Long id) {
         return documentTypeRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Document type not found with ID: " + id));
-    }
-    
-    @Override
-    public DocumentType updateDocumentType(Long id, DocumentType type) {
-        DocumentType existingType = getDocumentType(id);
-        
-        if (!existingType.getTypeName().equals(type.getTypeName()) && 
-            documentTypeRepository.existsByTypeName(type.getTypeName())) {
-            throw new RuntimeException("Duplicate document type name: " + type.getTypeName());
-        }
-        
-        existingType.setTypeName(type.getTypeName());
-        existingType.setDescription(type.getDescription());
-        existingType.setRequired(type.getRequired());
-        existingType.setWeight(type.getWeight());
-        
-        if (existingType.getWeight() < 0) {
-            existingType.setWeight(0);
-        }
-        
-        return documentTypeRepository.save(existingType);
-    }
-    
-    @Override
-    public void deleteDocumentType(Long id) {
-        DocumentType documentType = getDocumentType(id);
-        documentTypeRepository.delete(documentType);
-    }
-    
-    @Override
-    public List<DocumentType> getRequiredDocumentTypes() {
-        return documentTypeRepository.findByRequiredTrue();
+                .orElseThrow(() -> new ResourceNotFoundException("Document type not found with id: " + id));
     }
 }
