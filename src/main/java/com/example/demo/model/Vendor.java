@@ -22,7 +22,7 @@ public class Vendor {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "vendor_document_types",
         joinColumns = @JoinColumn(name = "vendor_id"),
@@ -35,7 +35,7 @@ public class Vendor {
         createdAt = LocalDateTime.now();
     }
     
-    // Getters and setters
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
