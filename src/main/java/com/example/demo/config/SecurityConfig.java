@@ -20,39 +20,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable())  // Disable CSRF
             .authorizeHttpRequests(auth -> auth
-                // Allow all public endpoints
-                .requestMatchers("/", "/health", "/error").permitAll()
-                
-                // Allow Swagger/OpenAPI endpoints
-                .requestMatchers(
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/v3/api-docs/**",
-                    "/v3/api-docs",
-                    "/api-docs/**",
-                    "/api-docs",
-                    "/webjars/**",
-                    "/swagger-resources/**",
-                    "/swagger-resources"
-                ).permitAll()
-                
-                // Allow auth endpoints
-                .requestMatchers("/auth/**").permitAll()
-                
-                // Allow H2 console (for testing)
-                .requestMatchers("/h2-console/**").permitAll()
-                
-                // Secure API endpoints
-                .requestMatchers("/api/**").authenticated()
-                
-                // Allow everything else (this will give whitelabel errors)
-                .anyRequest().permitAll()
-            )
-            
-            // Allow H2 console frames (for testing)
-            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+                .anyRequest().permitAll()  // Allow ALL requests without authentication
+            );
         
         return http.build();
     }
