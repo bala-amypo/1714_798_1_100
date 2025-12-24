@@ -1,10 +1,12 @@
 package com.example.demo.controller;
+
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -13,15 +15,8 @@ public class UserController {
     
     private final UserService userService;
     
-    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
-    }
-    
-    @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        User registeredUser = userService.registerUser(user);
-        return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
     }
     
     @GetMapping
@@ -36,14 +31,8 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
     
-    @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        User user = userService.findByEmail(email);
-        return ResponseEntity.ok(user);
-    }
-    
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
         User updatedUser = userService.updateUser(id, user);
         return ResponseEntity.ok(updatedUser);
     }
