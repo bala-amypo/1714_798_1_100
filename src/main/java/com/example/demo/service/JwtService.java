@@ -1,9 +1,9 @@
-package com.example.demo.service;
+// package com.example.demo.service;
 
-import org.springframework.security.core.userdetails.UserDetails;
+// import org.springframework.security.core.userdetails.UserDetails;
 
-public interface JwtService {
-    String extractUsername(String token);
-    String generateToken(UserDetails userDetails);
-    boolean validateToken(String token, UserDetails userDetails);
-}
+// public interface JwtService {
+//     String extractUsername(String token);
+//     String generateToken(UserDetails userDetails);
+//     boolean validateToken(String token, UserDetails userDetails);
+// }

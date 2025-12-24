@@ -1,13 +1,13 @@
-package com.example.demo.service;
+// package com.example.demo.service;
 
-import com.example.demo.model.ComplianceScore;
-import java.util.List;
+// import com.example.demo.model.ComplianceScore;
+// import java.util.List;
 
-public interface ComplianceScoreService {
-    ComplianceScore evaluateVendor(Long vendorId);
-    ComplianceScore getScore(Long vendorId);
-    List<ComplianceScore> getAllScores();
-    List<ComplianceScore> getScoresByRating(String rating);
-    List<ComplianceScore> getScoresAboveThreshold(Double minScore);
-    void reevaluateAllVendors();
-}
+// public interface ComplianceScoreService {
+//     ComplianceScore evaluateVendor(Long vendorId);
+//     ComplianceScore getScore(Long vendorId);
+//     List<ComplianceScore> getAllScores();
+//     List<ComplianceScore> getScoresByRating(String rating);
+//     List<ComplianceScore> getScoresAboveThreshold(Double minScore);
+//     void reevaluateAllVendors();
+// }

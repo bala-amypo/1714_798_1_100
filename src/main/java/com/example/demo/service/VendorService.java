@@ -1,12 +1,12 @@
-package com.example.demo.service;
+// package com.example.demo.service;
 
-import com.example.demo.model.Vendor;
-import java.util.List;
+// import com.example.demo.model.Vendor;
+// import java.util.List;
 
-public interface VendorService {
-    Vendor createVendor(Vendor vendor);
-    Vendor getVendor(Long id);
-    List<Vendor> getAllVendors();
-    Vendor updateVendor(Long id, Vendor vendorDetails);
-    void deleteVendor(Long id);
-}
+// public interface VendorService {
+//     Vendor createVendor(Vendor vendor);
+//     Vendor getVendor(Long id);
+//     List<Vendor> getAllVendors();
+//     Vendor updateVendor(Long id, Vendor vendorDetails);
+//     void deleteVendor(Long id);
+// }
