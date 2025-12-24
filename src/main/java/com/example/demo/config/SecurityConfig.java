@@ -44,24 +44,24 @@ public class SecurityConfig {
         return authProvider;
     }
     
-    // @Bean
-    // public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    //     http
-    //         .csrf(csrf -> csrf.disable())
-    //         .sessionManagement(session -> session
-    //             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-    //         .authorizeHttpRequests(auth -> auth
-    //             .requestMatchers("/auth/**").permitAll()
-    //             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-    //             .requestMatchers("/health").permitAll()
-    //             .requestMatchers("/api/document-types/**").hasRole("ADMIN")
-    //             .requestMatchers("/api/**").authenticated()
-    //             .anyRequest().authenticated())
-    //         .authenticationProvider(authenticationProvider())
-    //         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/health").permitAll()
+                .requestMatchers("/api/document-types/**").hasRole("ADMIN")
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().authenticated())
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
-    //     return http.build();
-    // }
+        return http.build();
+    }
     
     @Bean
     public PasswordEncoder passwordEncoder() {
