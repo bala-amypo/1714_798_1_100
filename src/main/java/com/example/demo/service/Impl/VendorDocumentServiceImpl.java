@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.service.VendorDocumentService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class VendorDocumentServiceImpl {
+public class VendorDocumentServiceImpl implements VendorDocumentService {
     
     private final VendorDocumentRepository vendorDocumentRepository;
     private final VendorRepository vendorRepository;
@@ -26,6 +27,7 @@ public class VendorDocumentServiceImpl {
         this.documentTypeRepository = documentTypeRepository;
     }
     
+    @Override
     public VendorDocument uploadDocument(Long vendorId, Long documentTypeId, VendorDocument document) {
         Vendor vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id: " + vendorId));
@@ -43,19 +45,23 @@ public class VendorDocumentServiceImpl {
         return vendorDocumentRepository.save(document);
     }
     
+    @Override
     public VendorDocument getDocument(Long id) {
         return vendorDocumentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("VendorDocument not found with id: " + id));
     }
     
+    @Override
     public List<VendorDocument> getDocumentsByVendor(Long vendorId) {
         return vendorDocumentRepository.findByVendorId(vendorId);
     }
     
+    @Override
     public List<VendorDocument> getExpiredDocuments() {
         return vendorDocumentRepository.findExpiredDocuments(LocalDate.now());
     }
     
+    @Override
     public VendorDocument updateDocument(Long id, VendorDocument documentDetails) {
         VendorDocument document = getDocument(id);
         document.setFileUrl(documentDetails.getFileUrl());
@@ -71,11 +77,13 @@ public class VendorDocumentServiceImpl {
         return vendorDocumentRepository.save(document);
     }
     
+    @Override
     public void deleteDocument(Long id) {
         VendorDocument document = getDocument(id);
         vendorDocumentRepository.delete(document);
     }
     
+    @Override
     public VendorDocument verifyDocument(Long id, String verifiedBy) {
         VendorDocument document = getDocument(id);
         document.setIsValid(true);

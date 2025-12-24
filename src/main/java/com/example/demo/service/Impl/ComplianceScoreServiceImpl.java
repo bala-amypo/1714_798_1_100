@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.service.ComplianceScoreService;
 import com.example.demo.util.ComplianceScoringEngine;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class ComplianceScoreServiceImpl {
+public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     
     private final VendorRepository vendorRepository;
     private final DocumentTypeRepository documentTypeRepository;
@@ -24,14 +25,16 @@ public class ComplianceScoreServiceImpl {
             VendorRepository vendorRepository,
             DocumentTypeRepository documentTypeRepository,
             VendorDocumentRepository vendorDocumentRepository,
-            ComplianceScoreRepository complianceScoreRepository) {
+            ComplianceScoreRepository complianceScoreRepository,
+            ComplianceScoringEngine scoringEngine) {
         this.vendorRepository = vendorRepository;
         this.documentTypeRepository = documentTypeRepository;
         this.vendorDocumentRepository = vendorDocumentRepository;
         this.complianceScoreRepository = complianceScoreRepository;
-        this.scoringEngine = new ComplianceScoringEngine();
+        this.scoringEngine = scoringEngine;
     }
     
+    @Override
     public ComplianceScore evaluateVendor(Long vendorId) {
         Vendor vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found with id: " + vendorId));
@@ -78,23 +81,28 @@ public class ComplianceScoreServiceImpl {
         return complianceScoreRepository.save(complianceScore);
     }
     
+    @Override
     public ComplianceScore getScore(Long vendorId) {
         return complianceScoreRepository.findByVendor_Id(vendorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Score not found for vendor id: " + vendorId));
     }
     
+    @Override
     public List<ComplianceScore> getAllScores() {
         return complianceScoreRepository.findAll();
     }
     
+    @Override
     public List<ComplianceScore> getScoresByRating(String rating) {
         return complianceScoreRepository.findByRating(rating);
     }
     
+    @Override
     public List<ComplianceScore> getScoresAboveThreshold(Double minScore) {
         return complianceScoreRepository.findByScoreValueGreaterThanEqual(minScore);
     }
     
+    @Override
     public void reevaluateAllVendors() {
         List<Vendor> vendors = vendorRepository.findAll();
         for (Vendor vendor : vendors) {
