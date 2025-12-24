@@ -3,7 +3,6 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -14,17 +13,13 @@ public class Vendor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(nullable = false, unique = true)
+    @Column(name = "vendor_name", nullable = false)
     private String vendorName;
     
     @Column(nullable = false)
-    private String email;
-    
-    private String phone;
-    
     private String industry;
     
-    @Column(nullable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
     
     @ManyToMany
@@ -35,97 +30,26 @@ public class Vendor {
     )
     private Set<DocumentType> supportedDocumentTypes = new HashSet<>();
     
-    public Vendor() {}
-    
-    public Vendor(String vendorName, String email, String phone, String industry) {
-        this.vendorName = vendorName;
-        this.email = email;
-        this.phone = phone;
-        this.industry = industry;
-    }
-    
     @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+    protected void prePersist() {
+        createdAt = LocalDateTime.now();
     }
     
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getVendorName() { return vendorName; }
+    public void setVendorName(String vendorName) { this.vendorName = vendorName; }
     
-    public String getVendorName() {
-        return vendorName;
-    }
+    public String getIndustry() { return industry; }
+    public void setIndustry(String industry) { this.industry = industry; }
     
-    public void setVendorName(String vendorName) {
-        this.vendorName = vendorName;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     
-    public String getEmail() {
-        return email;
-    }
-    
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
-    public String getPhone() {
-        return phone;
-    }
-    
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-    
-    public String getIndustry() {
-        return industry;
-    }
-    
-    public void setIndustry(String industry) {
-        this.industry = industry;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public Set<DocumentType> getSupportedDocumentTypes() {
-        return supportedDocumentTypes;
-    }
-    
-    public void setSupportedDocumentTypes(Set<DocumentType> supportedDocumentTypes) {
-        this.supportedDocumentTypes = supportedDocumentTypes;
-    }
-    
-    public void addDocumentType(DocumentType documentType) {
-        this.supportedDocumentTypes.add(documentType);
-        documentType.getVendors().add(this);
-    }
-    
-    public void removeDocumentType(DocumentType documentType) {
-        this.supportedDocumentTypes.remove(documentType);
-        documentType.getVendors().remove(this);
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Vendor vendor = (Vendor) o;
-        return Objects.equals(id, vendor.id) && Objects.equals(vendorName, vendor.vendorName);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, vendorName);
+    public Set<DocumentType> getSupportedDocumentTypes() { return supportedDocumentTypes; }
+    public void setSupportedDocumentTypes(Set<DocumentType> supportedDocumentTypes) { 
+        this.supportedDocumentTypes = supportedDocumentTypes; 
     }
 }
