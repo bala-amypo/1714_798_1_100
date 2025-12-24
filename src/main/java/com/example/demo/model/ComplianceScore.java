@@ -2,34 +2,30 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "compliance_scores")
 public class ComplianceScore {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @OneToOne
-    @JoinColumn(name = "vendor_id", unique = true, nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vendor_id", nullable = false, unique = true)
     private Vendor vendor;
     
     @Column(nullable = false)
-    private Double scoreValue = 0.0;
+    private Double scoreValue;
     
     @Column(nullable = false)
     private LocalDateTime lastEvaluated;
     
     @Column(nullable = false)
-    private String rating = "NONCOMPLIANT";
+    private String rating; // EXCELLENT, GOOD, POOR, NONCOMPLIANT
     
-    public ComplianceScore() {
-    }
-    
-    public ComplianceScore(Vendor vendor, Double scoreValue) {
-        this.vendor = vendor;
-        this.scoreValue = scoreValue;
-    }
+    public ComplianceScore() {}
     
     public ComplianceScore(Vendor vendor, Double scoreValue, String rating) {
         this.vendor = vendor;
@@ -40,31 +36,60 @@ public class ComplianceScore {
     @PrePersist
     @PreUpdate
     protected void onUpdate() {
-        lastEvaluated = LocalDateTime.now();
-        if (scoreValue < 0) {
-            scoreValue = 0.0;
-        }
-        if (scoreValue > 100) {
-            scoreValue = 100.0;
-        }
+        this.lastEvaluated = LocalDateTime.now();
     }
     
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Vendor getVendor() { return vendor; }
-    public void setVendor(Vendor vendor) { this.vendor = vendor; }
-    public Double getScoreValue() { return scoreValue; }
-    public void setScoreValue(Double scoreValue) { 
-        this.scoreValue = scoreValue;
-        if (this.scoreValue < 0) {
-            this.scoreValue = 0.0;
-        }
-        if (this.scoreValue > 100) {
-            this.scoreValue = 100.0;
-        }
+    // Getters and Setters
+    public Long getId() {
+        return id;
     }
-    public LocalDateTime getLastEvaluated() { return lastEvaluated; }
-    public void setLastEvaluated(LocalDateTime lastEvaluated) { this.lastEvaluated = lastEvaluated; }
-    public String getRating() { return rating; }
-    public void setRating(String rating) { this.rating = rating; }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public Vendor getVendor() {
+        return vendor;
+    }
+    
+    public void setVendor(Vendor vendor) {
+        this.vendor = vendor;
+    }
+    
+    public Double getScoreValue() {
+        return scoreValue;
+    }
+    
+    public void setScoreValue(Double scoreValue) {
+        this.scoreValue = scoreValue;
+    }
+    
+    public LocalDateTime getLastEvaluated() {
+        return lastEvaluated;
+    }
+    
+    public void setLastEvaluated(LocalDateTime lastEvaluated) {
+        this.lastEvaluated = lastEvaluated;
+    }
+    
+    public String getRating() {
+        return rating;
+    }
+    
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ComplianceScore that = (ComplianceScore) o;
+        return Objects.equals(id, that.id) && Objects.equals(vendor, that.vendor);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, vendor);
+    }
 }
