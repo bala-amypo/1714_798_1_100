@@ -1,16 +1,10 @@
-package com.example.demo.service;
+package com.example.demo.service.impl;
 
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
-import com.example.demo.model.ComplianceRule;
 import com.example.demo.repository.ComplianceRuleRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Service
-@Transactional
-public class ComplianceRuleServiceImpl implements ComplianceRuleService {
+public class ComplianceRuleServiceImpl {
     
     private final ComplianceRuleRepository complianceRuleRepository;
     
@@ -18,27 +12,5 @@ public class ComplianceRuleServiceImpl implements ComplianceRuleService {
         this.complianceRuleRepository = complianceRuleRepository;
     }
     
-    @Override
-    public ComplianceRule createRule(ComplianceRule rule) {
-        if (complianceRuleRepository.existsByRuleName(rule.getRuleName())) {
-            throw new ValidationException("Rule name already exists: " + rule.getRuleName());
-        }
-        
-        if (rule.getThreshold() < 0) {
-            throw new ValidationException("Threshold must be non-negative");
-        }
-        
-        return complianceRuleRepository.save(rule);
-    }
-    
-    @Override
-    public List<ComplianceRule> getAllRules() {
-        return complianceRuleRepository.findAll();
-    }
-    
-    @Override
-    public ComplianceRule getRule(Long id) {
-        return complianceRuleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Compliance rule not found with id: " + id));
-    }
+    // Add methods as needed
 }
