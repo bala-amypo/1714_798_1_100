@@ -1,11 +1,15 @@
 package com.example.demo.controller;
+
+import com.example.demo.dto.ComplianceRuleDTO;
 import com.example.demo.model.ComplianceRule;
 import com.example.demo.service.ComplianceRuleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/compliance-rules")
@@ -13,38 +17,44 @@ public class ComplianceRuleController {
     
     private final ComplianceRuleService complianceRuleService;
     
-    @Autowired
     public ComplianceRuleController(ComplianceRuleService complianceRuleService) {
         this.complianceRuleService = complianceRuleService;
     }
     
     @PostMapping
-    public ResponseEntity<ComplianceRule> createRule(@RequestBody ComplianceRule rule) {
-        ComplianceRule createdRule = complianceRuleService.createRule(rule);
-        return new ResponseEntity<>(createdRule, HttpStatus.CREATED);
+    public ResponseEntity<ComplianceRuleDTO> createRule(@Valid @RequestBody ComplianceRuleDTO ruleDTO) {
+        ComplianceRule rule = new ComplianceRule();
+        rule.setRuleName(ruleDTO.getRuleName());
+        rule.setRuleDescription(ruleDTO.getRuleDescription());
+        rule.setMatchType(ruleDTO.getMatchType());
+        rule.setThreshold(ruleDTO.getThreshold());
+        
+        ComplianceRule savedRule = complianceRuleService.createRule(rule);
+        return new ResponseEntity<>(convertToDTO(savedRule), HttpStatus.CREATED);
     }
     
     @GetMapping
-    public ResponseEntity<List<ComplianceRule>> getAllRules() {
+    public ResponseEntity<List<ComplianceRuleDTO>> getAllRules() {
         List<ComplianceRule> rules = complianceRuleService.getAllRules();
-        return ResponseEntity.ok(rules);
+        List<ComplianceRuleDTO> dtos = rules.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ComplianceRule> getRuleById(@PathVariable Long id) {
+    public ResponseEntity<ComplianceRuleDTO> getRule(@PathVariable Long id) {
         ComplianceRule rule = complianceRuleService.getRule(id);
-        return ResponseEntity.ok(rule);
+        return ResponseEntity.ok(convertToDTO(rule));
     }
     
-    @PutMapping("/{id}")
-    public ResponseEntity<ComplianceRule> updateRule(@PathVariable Long id, @RequestBody ComplianceRule rule) {
-        ComplianceRule updatedRule = complianceRuleService.updateRule(id, rule);
-        return ResponseEntity.ok(updatedRule);
-    }
-    
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRule(@PathVariable Long id) {
-        complianceRuleService.deleteRule(id);
-        return ResponseEntity.noContent().build();
+    private ComplianceRuleDTO convertToDTO(ComplianceRule rule) {
+        ComplianceRuleDTO dto = new ComplianceRuleDTO();
+        dto.setId(rule.getId());
+        dto.setRuleName(rule.getRuleName());
+        dto.setRuleDescription(rule.getRuleDescription());
+        dto.setMatchType(rule.getMatchType());
+        dto.setThreshold(rule.getThreshold());
+        return dto;
     }
 }

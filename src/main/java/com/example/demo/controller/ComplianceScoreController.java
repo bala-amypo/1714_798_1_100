@@ -1,11 +1,14 @@
 package com.example.demo.controller;
+
+import com.example.demo.dto.ComplianceScoreDTO;
 import com.example.demo.model.ComplianceScore;
 import com.example.demo.service.ComplianceScoreService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/compliance-scores")
@@ -13,38 +16,39 @@ public class ComplianceScoreController {
     
     private final ComplianceScoreService complianceScoreService;
     
-    @Autowired
     public ComplianceScoreController(ComplianceScoreService complianceScoreService) {
         this.complianceScoreService = complianceScoreService;
     }
     
     @PostMapping("/evaluate")
-    public ResponseEntity<ComplianceScore> evaluateVendor(@RequestParam Long vendorId) {
+    public ResponseEntity<ComplianceScoreDTO> evaluateVendor(@RequestParam Long vendorId) {
         ComplianceScore score = complianceScoreService.evaluateVendor(vendorId);
-        return new ResponseEntity<>(score, HttpStatus.CREATED);
+        return new ResponseEntity<>(convertToDTO(score), HttpStatus.CREATED);
     }
     
     @GetMapping("/vendor/{vendorId}")
-    public ResponseEntity<ComplianceScore> getScoreByVendor(@PathVariable Long vendorId) {
+    public ResponseEntity<ComplianceScoreDTO> getScore(@PathVariable Long vendorId) {
         ComplianceScore score = complianceScoreService.getScore(vendorId);
-        return ResponseEntity.ok(score);
+        return ResponseEntity.ok(convertToDTO(score));
     }
     
     @GetMapping
-    public ResponseEntity<List<ComplianceScore>> getAllScores() {
+    public ResponseEntity<List<ComplianceScoreDTO>> getAllScores() {
         List<ComplianceScore> scores = complianceScoreService.getAllScores();
-        return ResponseEntity.ok(scores);
+        List<ComplianceScoreDTO> dtos = scores.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
     
-    @PutMapping("/vendor/{vendorId}")
-    public ResponseEntity<ComplianceScore> updateScore(@PathVariable Long vendorId, @RequestBody ComplianceScore score) {
-        ComplianceScore updatedScore = complianceScoreService.updateScore(vendorId, score);
-        return ResponseEntity.ok(updatedScore);
-    }
-    
-    @DeleteMapping("/vendor/{vendorId}")
-    public ResponseEntity<Void> deleteScore(@PathVariable Long vendorId) {
-        complianceScoreService.deleteScore(vendorId);
-        return ResponseEntity.noContent().build();
+    private ComplianceScoreDTO convertToDTO(ComplianceScore score) {
+        ComplianceScoreDTO dto = new ComplianceScoreDTO();
+        dto.setId(score.getId());
+        dto.setVendorId(score.getVendor().getId());
+        dto.setVendorName(score.getVendor().getVendorName());
+        dto.setScoreValue(score.getScoreValue());
+        dto.setRating(score.getRating());
+        dto.setLastEvaluated(score.getLastEvaluated().toString());
+        return dto;
     }
 }
