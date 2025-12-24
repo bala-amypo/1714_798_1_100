@@ -2,8 +2,13 @@ package com.example.demo.util;
 
 import com.example.demo.model.DocumentType;
 import com.example.demo.model.VendorDocument;
-import java.util.List;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Component
 public class ComplianceScoringEngine {
     
     public double calculateScore(List<DocumentType> requiredTypes, List<VendorDocument> vendorDocuments) {
@@ -11,19 +16,22 @@ public class ComplianceScoringEngine {
             return 100.0;
         }
         
+        // Group documents by document type for faster lookup
+        Map<Long, VendorDocument> validDocumentsByType = vendorDocuments.stream()
+                .filter(doc -> Boolean.TRUE.equals(doc.getIsValid()))
+                .collect(Collectors.toMap(
+                    doc -> doc.getDocumentType().getId(),
+                    doc -> doc,
+                    (existing, replacement) -> existing
+                ));
+        
         double totalWeight = 0.0;
         double achievedWeight = 0.0;
         
         for (DocumentType docType : requiredTypes) {
             totalWeight += docType.getWeight();
             
-            boolean hasValidDocument = vendorDocuments.stream()
-                    .anyMatch(doc -> 
-                        doc.getDocumentType().getId().equals(docType.getId()) && 
-                        Boolean.TRUE.equals(doc.getIsValid())
-                    );
-            
-            if (hasValidDocument) {
+            if (validDocumentsByType.containsKey(docType.getId())) {
                 achievedWeight += docType.getWeight();
             }
         }
@@ -45,5 +53,25 @@ public class ComplianceScoringEngine {
         } else {
             return "NON_COMPLIANT";
         }
+    }
+    
+    public Map<String, Object> getScoreDetails(List<DocumentType> requiredTypes, List<VendorDocument> vendorDocuments) {
+        double score = calculateScore(requiredTypes, vendorDocuments);
+        String rating = deriveRating(score);
+        
+        long totalRequired = requiredTypes.size();
+        long totalCompliant = vendorDocuments.stream()
+                .filter(doc -> Boolean.TRUE.equals(doc.getIsValid()))
+                .filter(doc -> requiredTypes.stream()
+                        .anyMatch(type -> type.getId().equals(doc.getDocumentType().getId())))
+                .count();
+        
+        return Map.of(
+            "score", score,
+            "rating", rating,
+            "totalRequired", totalRequired,
+            "totalCompliant", totalCompliant,
+            "compliancePercentage", score
+        );
     }
 }

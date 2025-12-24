@@ -10,11 +10,15 @@ import java.io.IOException;
 @WebServlet(urlPatterns = "/health")
 public class HealthServlet extends HttpServlet {
     
+    private static final long serialVersionUID = 1L;
+    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
             throws ServletException, IOException {
         resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.getWriter().write("{\"status\":\"UP\"}");
+        resp.getWriter().write("{\"status\":\"UP\",\"service\":\"Vendor Compliance\",\"timestamp\":\"" + 
+                java.time.LocalDateTime.now() + "\"}");
     }
 }
