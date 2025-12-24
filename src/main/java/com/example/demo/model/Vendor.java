@@ -22,7 +22,7 @@ public class Vendor {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(
         name = "vendor_document_types",
         joinColumns = @JoinColumn(name = "vendor_id"),

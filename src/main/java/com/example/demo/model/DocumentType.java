@@ -22,13 +22,10 @@ public class DocumentType {
     @Column(nullable = false)
     private Boolean required = false;
     
-    @Column(name = "description")
-    private String description;
-    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    @ManyToMany(mappedBy = "supportedDocumentTypes", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "supportedDocumentTypes")
     private Set<Vendor> vendors = new HashSet<>();
     
     @PrePersist
@@ -36,9 +33,6 @@ public class DocumentType {
         createdAt = LocalDateTime.now();
         if (weight == null || weight <= 0) {
             weight = 1;
-        }
-        if (required == null) {
-            required = false;
         }
     }
     
@@ -54,9 +48,6 @@ public class DocumentType {
     
     public Boolean getRequired() { return required; }
     public void setRequired(Boolean required) { this.required = required; }
-    
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
