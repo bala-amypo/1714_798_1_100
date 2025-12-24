@@ -3,16 +3,18 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "document_types")
 public class DocumentType {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String typeName;
     
     private String description;
@@ -29,12 +31,7 @@ public class DocumentType {
     @ManyToMany(mappedBy = "supportedDocumentTypes")
     private Set<Vendor> vendors = new HashSet<>();
     
-    public DocumentType() {
-    }
-    
-    public DocumentType(String typeName) {
-        this.typeName = typeName;
-    }
+    public DocumentType() {}
     
     public DocumentType(String typeName, String description, Boolean required, Integer weight) {
         this.typeName = typeName;
@@ -45,21 +42,76 @@ public class DocumentType {
     
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
     
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getTypeName() { return typeName; }
-    public void setTypeName(String typeName) { this.typeName = typeName; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public Boolean getRequired() { return required; }
-    public void setRequired(Boolean required) { this.required = required; }
-    public Integer getWeight() { return weight; }
-    public void setWeight(Integer weight) { this.weight = weight; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public Set<Vendor> getVendors() { return vendors; }
-    public void setVendors(Set<Vendor> vendors) { this.vendors = vendors; }
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public String getTypeName() {
+        return typeName;
+    }
+    
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public Boolean getRequired() {
+        return required;
+    }
+    
+    public void setRequired(Boolean required) {
+        this.required = required;
+    }
+    
+    public Integer getWeight() {
+        return weight;
+    }
+    
+    public void setWeight(Integer weight) {
+        this.weight = weight;
+    }
+    
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    public Set<Vendor> getVendors() {
+        return vendors;
+    }
+    
+    public void setVendors(Set<Vendor> vendors) {
+        this.vendors = vendors;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DocumentType that = (DocumentType) o;
+        return Objects.equals(id, that.id) && Objects.equals(typeName, that.typeName);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, typeName);
+    }
 }

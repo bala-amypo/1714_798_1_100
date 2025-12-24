@@ -3,19 +3,21 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "vendor_documents")
 public class VendorDocument {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendor_id", nullable = false)
     private Vendor vendor;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "document_type_id", nullable = false)
     private DocumentType documentType;
     
@@ -27,16 +29,10 @@ public class VendorDocument {
     
     private LocalDate expiryDate;
     
-    private Boolean isValid = true;
+    @Column(nullable = false)
+    private Boolean isValid;
     
-    public VendorDocument() {
-    }
-    
-    public VendorDocument(Vendor vendor, DocumentType documentType, String fileUrl) {
-        this.vendor = vendor;
-        this.documentType = documentType;
-        this.fileUrl = fileUrl;
-    }
+    public VendorDocument() {}
     
     public VendorDocument(Vendor vendor, DocumentType documentType, String fileUrl, LocalDate expiryDate) {
         this.vendor = vendor;
@@ -47,29 +43,91 @@ public class VendorDocument {
     
     @PrePersist
     protected void onCreate() {
-        uploadedAt = LocalDateTime.now();
-        if (expiryDate != null && expiryDate.isBefore(LocalDate.now())) {
-            isValid = false;
+        this.uploadedAt = LocalDateTime.now();
+        updateValidity();
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updateValidity();
+    }
+    
+    private void updateValidity() {
+        if (expiryDate == null) {
+            this.isValid = true;
+        } else {
+            this.isValid = !expiryDate.isBefore(LocalDate.now());
         }
     }
     
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Vendor getVendor() { return vendor; }
-    public void setVendor(Vendor vendor) { this.vendor = vendor; }
-    public DocumentType getDocumentType() { return documentType; }
-    public void setDocumentType(DocumentType documentType) { this.documentType = documentType; }
-    public String getFileUrl() { return fileUrl; }
-    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
-    public LocalDateTime getUploadedAt() { return uploadedAt; }
-    public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
-    public LocalDate getExpiryDate() { return expiryDate; }
-    public void setExpiryDate(LocalDate expiryDate) { 
-        this.expiryDate = expiryDate; 
-        if (expiryDate != null && expiryDate.isBefore(LocalDate.now())) {
-            isValid = false;
-        }
+    // Getters and Setters
+    public Long getId() {
+        return id;
     }
-    public Boolean getIsValid() { return isValid; }
-    public void setIsValid(Boolean isValid) { this.isValid = isValid; }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public Vendor getVendor() {
+        return vendor;
+    }
+    
+    public void setVendor(Vendor vendor) {
+        this.vendor = vendor;
+    }
+    
+    public DocumentType getDocumentType() {
+        return documentType;
+    }
+    
+    public void setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
+    }
+    
+    public String getFileUrl() {
+        return fileUrl;
+    }
+    
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
+    }
+    
+    public LocalDateTime getUploadedAt() {
+        return uploadedAt;
+    }
+    
+    public void setUploadedAt(LocalDateTime uploadedAt) {
+        this.uploadedAt = uploadedAt;
+    }
+    
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+    
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
+        updateValidity();
+    }
+    
+    public Boolean getIsValid() {
+        return isValid;
+    }
+    
+    public void setIsValid(Boolean valid) {
+        isValid = valid;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VendorDocument that = (VendorDocument) o;
+        return Objects.equals(id, that.id) && Objects.equals(fileUrl, that.fileUrl);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, fileUrl);
+    }
 }

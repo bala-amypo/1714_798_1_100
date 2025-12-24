@@ -3,16 +3,18 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "vendors")
 public class Vendor {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String vendorName;
     
     @Column(nullable = false)
@@ -33,13 +35,7 @@ public class Vendor {
     )
     private Set<DocumentType> supportedDocumentTypes = new HashSet<>();
     
-    public Vendor() {
-    }
-    
-    public Vendor(String vendorName, String email) {
-        this.vendorName = vendorName;
-        this.email = email;
-    }
+    public Vendor() {}
     
     public Vendor(String vendorName, String email, String phone, String industry) {
         this.vendorName = vendorName;
@@ -50,23 +46,86 @@ public class Vendor {
     
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
     
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getVendorName() { return vendorName; }
-    public void setVendorName(String vendorName) { this.vendorName = vendorName; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-    public String getIndustry() { return industry; }
-    public void setIndustry(String industry) { this.industry = industry; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public Set<DocumentType> getSupportedDocumentTypes() { return supportedDocumentTypes; }
-    public void setSupportedDocumentTypes(Set<DocumentType> supportedDocumentTypes) { 
-        this.supportedDocumentTypes = supportedDocumentTypes; 
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public String getVendorName() {
+        return vendorName;
+    }
+    
+    public void setVendorName(String vendorName) {
+        this.vendorName = vendorName;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    public String getPhone() {
+        return phone;
+    }
+    
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+    
+    public String getIndustry() {
+        return industry;
+    }
+    
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+    
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    public Set<DocumentType> getSupportedDocumentTypes() {
+        return supportedDocumentTypes;
+    }
+    
+    public void setSupportedDocumentTypes(Set<DocumentType> supportedDocumentTypes) {
+        this.supportedDocumentTypes = supportedDocumentTypes;
+    }
+    
+    public void addDocumentType(DocumentType documentType) {
+        this.supportedDocumentTypes.add(documentType);
+        documentType.getVendors().add(this);
+    }
+    
+    public void removeDocumentType(DocumentType documentType) {
+        this.supportedDocumentTypes.remove(documentType);
+        documentType.getVendors().remove(this);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vendor vendor = (Vendor) o;
+        return Objects.equals(id, vendor.id) && Objects.equals(vendorName, vendor.vendorName);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, vendorName);
     }
 }
