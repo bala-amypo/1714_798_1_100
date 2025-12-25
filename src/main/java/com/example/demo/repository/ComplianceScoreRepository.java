@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface ComplianceScoreRepository extends JpaRepository<ComplianceScore, Long> {
     Optional<ComplianceScore> findByVendorId(Long vendorId);
-    Optional<ComplianceScore> findByVendor_Id(Long vendorId); // For test compatibility
+    Optional<ComplianceScore> findByVendor_Id(Long vendorId);
 }
