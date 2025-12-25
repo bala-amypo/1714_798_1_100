@@ -28,7 +28,8 @@ public class Vendor {
     
     private LocalDateTime createdAt;
     
-    @ManyToMany
+    @ManyT
+    oMany
     @JoinTable(
         name = "vendor_document_type",
         joinColumns = @JoinColumn(name = "vendor_id"),
