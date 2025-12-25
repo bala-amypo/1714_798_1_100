@@ -1,42 +1,30 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "compliance_scores")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ComplianceScore {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne
-    @JoinColumn(name = "vendor_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "vendor_id", nullable = false, unique = true)
     private Vendor vendor;
     
-    @Column(name = "score_value", nullable = false)
-    private Double scoreValue;
-    
     @Column(nullable = false)
+    private Double scoreValue = 0.0;
+    
+    private LocalDateTime lastEvaluated;
+    
     private String rating;
-    
-    @Column(name = "evaluated_at")
-    private LocalDateTime evaluatedAt;
-    
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    
-    public Vendor getVendor() { return vendor; }
-    public void setVendor(Vendor vendor) { this.vendor = vendor; }
-    
-    public Double getScoreValue() { return scoreValue; }
-    public void setScoreValue(Double scoreValue) { this.scoreValue = scoreValue; }
-    
-    public String getRating() { return rating; }
-    public void setRating(String rating) { this.rating = rating; }
-    
-    public LocalDateTime getEvaluatedAt() { return evaluatedAt; }
-    public void setEvaluatedAt(LocalDateTime evaluatedAt) { this.evaluatedAt = evaluatedAt; }
 }
