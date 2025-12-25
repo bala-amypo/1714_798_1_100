@@ -22,7 +22,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     private final DocumentTypeRepository documentTypeRepository;
     private final VendorDocumentRepository vendorDocumentRepository;
     private final ComplianceScoreRepository complianceScoreRepository;
-    private final ComplianceScoringEngine scoringEngine = new ComplianceScoringEngine();
+    private final ComplianceScoringEngine scoringEngine;
     
     @Override
     @Transactional
@@ -33,7 +33,8 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
         List<DocumentType> requiredTypes = documentTypeRepository.findByRequiredTrue();
         List<VendorDocument> vendorDocuments = vendorDocumentRepository.findByVendor(vendor);
         
-        double score = scoringEngine.calculateScore(requiredTypes, vendorDocuments);
+        // Use the correct method for business logic
+        double score = scoringEngine.calculateScoreForVendor(requiredTypes, vendorDocuments);
         
         if (score < 0) {
             throw new ValidationException("Compliance score cannot be negative");
