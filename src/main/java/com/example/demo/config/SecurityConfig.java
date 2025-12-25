@@ -2,7 +2,6 @@ package com.example.demo.config;
 
 import com.example.demo.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "spring.security.enabled", havingValue = "true", matchIfMissing = true)
 public class SecurityConfig {
     
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
