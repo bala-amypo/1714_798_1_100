@@ -36,4 +36,4 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
         return documentTypeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("DocumentType not found"));
     }
-} 
+}
