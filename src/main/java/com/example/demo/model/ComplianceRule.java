@@ -28,7 +28,7 @@ public class ComplianceRule {
     private LocalDateTime createdAt;
     
     @PrePersist
-    protected void onCreate() {
+    public void prePersist() {
         createdAt = LocalDateTime.now();
         if (threshold == null) {
             threshold = 0.0;

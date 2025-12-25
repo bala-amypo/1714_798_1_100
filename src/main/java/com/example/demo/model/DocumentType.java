@@ -34,7 +34,7 @@ public class DocumentType {
     private Set<Vendor> vendors = new HashSet<>();
     
     @PrePersist
-    protected void onCreate() {
+    public void prePersist() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }

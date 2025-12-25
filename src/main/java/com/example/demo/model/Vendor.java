@@ -28,8 +28,7 @@ public class Vendor {
     
     private LocalDateTime createdAt;
     
-    @ManyT
-    oMany
+    @ManyToMany
     @JoinTable(
         name = "vendor_document_type",
         joinColumns = @JoinColumn(name = "vendor_id"),
@@ -38,7 +37,7 @@ public class Vendor {
     private Set<DocumentType> supportedDocumentTypes = new HashSet<>();
     
     @PrePersist
-    protected void onCreate() {
+    public void prePersist() {
         createdAt = LocalDateTime.now();
     }
 }

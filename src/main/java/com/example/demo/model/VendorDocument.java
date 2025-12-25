@@ -36,7 +36,7 @@ public class VendorDocument {
     private Boolean isValid;
     
     @PrePersist
-    protected void onCreate() {
+    public void prePersist() {
         uploadedAt = LocalDateTime.now();
         if (expiryDate != null) {
             isValid = expiryDate.isAfter(LocalDate.now()) || expiryDate.isEqual(LocalDate.now());
