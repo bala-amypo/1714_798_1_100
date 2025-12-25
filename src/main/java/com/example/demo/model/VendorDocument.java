@@ -35,13 +35,15 @@ public class VendorDocument {
     
     private Boolean isValid;
     
-    @PrePersist
-    public void prePersist() {
+   @PrePersist
+public void prePersist() {
+    if (uploadedAt == null) {
         uploadedAt = LocalDateTime.now();
-        if (expiryDate != null) {
-            isValid = expiryDate.isAfter(LocalDate.now()) || expiryDate.isEqual(LocalDate.now());
-        } else {
-            isValid = true;
-        }
     }
+    if (expiryDate != null) {
+        isValid = !expiryDate.isBefore(LocalDate.now());
+    } else if (isValid == null) {
+        isValid = true;
+    }
+}
 }

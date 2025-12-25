@@ -37,7 +37,9 @@ public class Vendor {
     private Set<DocumentType> supportedDocumentTypes = new HashSet<>();
     
     @PrePersist
-    public void prePersist() {
+public void prePersist() {
+    if (createdAt == null) {
         createdAt = LocalDateTime.now();
     }
+}
 }

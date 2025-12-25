@@ -33,16 +33,16 @@ public class DocumentType {
     @ManyToMany(mappedBy = "supportedDocumentTypes")
     private Set<Vendor> vendors = new HashSet<>();
     
-    @PrePersist
-    public void prePersist() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (weight == null) {
-            weight = 0;
-        }
-        if (required == null) {
-            required = false;
-        }
+   @PrePersist
+public void prePersist() {
+    if (createdAt == null) {
+        createdAt = LocalDateTime.now();
     }
+    if (weight == null) {
+        weight = 0;
+    }
+    if (required == null) {
+        required = false;
+    }
+}
 }
