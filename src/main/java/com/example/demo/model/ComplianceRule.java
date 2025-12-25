@@ -28,10 +28,12 @@ public class ComplianceRule {
     private LocalDateTime createdAt;
     
     @PrePersist
-    public void prePersist() {
+public void prePersist() {
+    if (createdAt == null) {
         createdAt = LocalDateTime.now();
-        if (threshold == null) {
-            threshold = 0.0;
-        }
     }
+    if (threshold == null) {
+        threshold = 0.0;
+    }
+}
 }

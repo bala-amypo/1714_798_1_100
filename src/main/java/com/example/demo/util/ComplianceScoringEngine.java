@@ -8,8 +8,8 @@ import java.util.List;
 @Component
 public class ComplianceScoringEngine {
     
-    // MUST match test: calculateScore(List<DocumentType>, List<DocumentType>)
     public double calculateScore(List<DocumentType> requiredTypes, List<DocumentType> vendorDocuments) {
+        // Test passes List<DocumentType> for both parameters
         if (requiredTypes == null || requiredTypes.isEmpty()) {
             return 100.0;
         }
@@ -18,24 +18,26 @@ public class ComplianceScoringEngine {
         double earnedWeight = 0;
         
         for (DocumentType requiredType : requiredTypes) {
-            if (requiredType.getWeight() != null) {
-                totalWeight += requiredType.getWeight();
+            Integer weight = requiredType.getWeight();
+            if (weight != null) {
+                totalWeight += weight;
             }
             
+            // Check if vendor has this document
             boolean hasDocument = false;
             if (vendorDocuments != null) {
-                for (DocumentType vendorDoc : vendorDocuments) {
-                    if (vendorDoc != null && vendorDoc.getId() != null && 
+                for (DocumentType doc : vendorDocuments) {
+                    if (doc != null && doc.getId() != null && 
                         requiredType.getId() != null && 
-                        vendorDoc.getId().equals(requiredType.getId())) {
+                        doc.getId().equals(requiredType.getId())) {
                         hasDocument = true;
                         break;
                     }
                 }
             }
             
-            if (hasDocument && requiredType.getWeight() != null) {
-                earnedWeight += requiredType.getWeight();
+            if (hasDocument && weight != null) {
+                earnedWeight += weight;
             }
         }
         
@@ -47,14 +49,9 @@ public class ComplianceScoringEngine {
     }
     
     public String deriveRating(double score) {
-        if (score >= 90) {
-            return "EXCELLENT";
-        } else if (score >= 70) {
-            return "GOOD";
-        } else if (score >= 50) {
-            return "POOR";
-        } else {
-            return "NON_COMPLIANT";
-        }
+        if (score >= 90) return "EXCELLENT";
+        if (score >= 70) return "GOOD";
+        if (score >= 50) return "POOR";
+        return "NON_COMPLIANT";
     }
 }
