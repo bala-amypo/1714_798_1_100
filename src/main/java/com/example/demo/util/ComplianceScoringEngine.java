@@ -9,33 +9,30 @@ import java.util.List;
 @Component
 public class ComplianceScoringEngine {
     
-    // This method signature must match what the test expects
+    // Method that matches test expectations
     public double calculateScore(List<DocumentType> requiredTypes, List<DocumentType> vendorDocuments) {
-        // The test is passing List<DocumentType> as second parameter
-        if (requiredTypes.isEmpty()) {
+        if (requiredTypes == null || requiredTypes.isEmpty()) {
             return 100.0;
         }
         
-        double totalWeight = requiredTypes.stream()
-                .mapToInt(DocumentType::getWeight)
-                .sum();
-        
-        if (totalWeight == 0) {
-            return 100.0;
-        }
-        
+        double totalWeight = 0;
         double earnedWeight = 0;
         
-        // Since test is passing DocumentType instead of VendorDocument,
-        // we'll assume all required documents are present
         for (DocumentType requiredType : requiredTypes) {
-            // Check if this document type is in the "vendorDocuments" list
+            totalWeight += requiredType.getWeight();
+            
+            // Check if vendor has this document type
             boolean hasDocument = vendorDocuments.stream()
-                    .anyMatch(doc -> doc.getId().equals(requiredType.getId()));
+                    .anyMatch(doc -> doc.getId() != null && 
+                                   doc.getId().equals(requiredType.getId()));
             
             if (hasDocument) {
                 earnedWeight += requiredType.getWeight();
             }
+        }
+        
+        if (totalWeight == 0) {
+            return 100.0;
         }
         
         return (earnedWeight / totalWeight) * 100.0;

@@ -16,11 +16,13 @@ public class JwtUtil {
     private final SecretKey secretKey;
     private final long validityInMilliseconds;
     
+    // No-arg constructor for Spring
     public JwtUtil() {
         this.secretKey = Keys.hmacShaKeyFor("mySecretKey123456789012345678901234567890".getBytes());
         this.validityInMilliseconds = 3600000; // 1 hour
     }
     
+    // Constructor for test compatibility
     public JwtUtil(String secret, long validityInMs) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
         this.validityInMilliseconds = validityInMs;
@@ -69,5 +71,15 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("role", String.class);
+    }
+    
+    // Added method for test compatibility
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("email", String.class);
     }
 }
