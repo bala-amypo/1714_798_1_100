@@ -10,7 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -20,30 +24,61 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
     
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                authRequest.getEmail(), 
-                authRequest.getPassword()
-            )
-        );
-        
-        User user = userService.findByEmail(authRequest.getEmail());
-        String token = jwtUtil.generateToken(authentication, user.getId(), user.getEmail(), user.getRole());
-        
-        return ResponseEntity.ok(new AuthResponse(
-            token, 
-            user.getId(), 
-            user.getEmail(), 
-            user.getRole()
-        ));
+        try {
+            // Find user by email
+            User user = userService.findByEmail(authRequest.getEmail());
+            
+            // Check password
+            if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
+                return ResponseEntity.status(401).body(new AuthResponse(
+                    null, 
+                    null, 
+                    null, 
+                    "Invalid credentials"
+                ));
+            }
+            
+            // Create authentication token
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user.getEmail(), 
+                user.getPassword()
+            );
+            
+            // Generate token
+            String token = jwtUtil.generateToken(authentication, user.getId(), user.getEmail(), user.getRole());
+            
+            // Return response
+            return ResponseEntity.ok(new AuthResponse(
+                token, 
+                user.getId(), 
+                user.getEmail(), 
+                user.getRole()
+            ));
+            
+        } catch (Exception e) {
+            // Log the error
+            System.err.println("Login error: " + e.getMessage());
+            return ResponseEntity.status(401).body(new AuthResponse(
+                null, 
+                null, 
+                null, 
+                "Authentication failed: " + e.getMessage()
+            ));
+        }
     }
     
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
-        User registeredUser = userService.registerUser(user);
-        return ResponseEntity.ok(registeredUser);
+        try {
+            User registeredUser = userService.registerUser(user);
+            return ResponseEntity.ok(registeredUser);
+        } catch (Exception e) {
+            System.err.println("Registration error: " + e.getMessage());
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 }
