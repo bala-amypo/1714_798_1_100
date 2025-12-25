@@ -1,13 +1,9 @@
-// package com.example.demo.service;
+package com.example.demo.service;
 
-// import com.example.demo.model.User;
-// import java.util.List;
+import com.example.demo.model.User;
 
-// public interface UserService {
-//     User registerUser(User user);
-//     User findByEmail(String email);
-//     User getById(Long id);
-//     List<User> getAllUsers();
-//     User updateUser(Long id, User userDetails);
-//     void deleteUser(Long id);
-// }
+public interface UserService {
+    User registerUser(User user);
+    User findByEmail(String email);
+    User getById(Long id);
+}
