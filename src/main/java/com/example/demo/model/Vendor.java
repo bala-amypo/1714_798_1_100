@@ -2,8 +2,9 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -11,7 +12,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "vendors")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Vendor {
@@ -28,7 +30,7 @@ public class Vendor {
     
     private LocalDateTime createdAt;
     
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "vendor_document_type",
         joinColumns = @JoinColumn(name = "vendor_id"),
@@ -37,9 +39,31 @@ public class Vendor {
     private Set<DocumentType> supportedDocumentTypes = new HashSet<>();
     
     @PrePersist
-public void prePersist() {
-    if (createdAt == null) {
-        createdAt = LocalDateTime.now();
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
-}
+    
+    // Custom equals and hashCode to avoid recursion
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Vendor)) return false;
+        return id != null && id.equals(((Vendor) o).getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+    
+    @Override
+    public String toString() {
+        return "Vendor{" +
+                "id=" + id +
+                ", vendorName='" + vendorName + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }
