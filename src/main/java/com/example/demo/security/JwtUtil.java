@@ -16,10 +16,10 @@ public class JwtUtil {
     private final SecretKey secretKey;
     private final long validityInMilliseconds;
     
-    // No-arg constructor for Spring
+    // Constructor for Spring
     public JwtUtil() {
         this.secretKey = Keys.hmacShaKeyFor("mySecretKey123456789012345678901234567890".getBytes());
-        this.validityInMilliseconds = 3600000; // 1 hour
+        this.validityInMilliseconds = 3600000;
     }
     
     // Constructor for test compatibility
@@ -56,30 +56,25 @@ public class JwtUtil {
     }
     
     public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims = getClaims(token);
         return claims.get("userId", Long.class);
     }
     
     public String getRoleFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims = getClaims(token);
         return claims.get("role", String.class);
     }
     
-    // Added method for test compatibility
     public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
+        Claims claims = getClaims(token);
+        return claims.get("email", String.class);
+    }
+    
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return claims.get("email", String.class);
     }
 }

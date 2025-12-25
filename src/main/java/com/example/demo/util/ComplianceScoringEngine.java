@@ -1,7 +1,6 @@
 package com.example.demo.util;
 
 import com.example.demo.model.DocumentType;
-import com.example.demo.model.VendorDocument;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
 @Component
 public class ComplianceScoringEngine {
     
-    // Method that matches test expectations
+    // MUST match test: calculateScore(List<DocumentType>, List<DocumentType>)
     public double calculateScore(List<DocumentType> requiredTypes, List<DocumentType> vendorDocuments) {
         if (requiredTypes == null || requiredTypes.isEmpty()) {
             return 100.0;
@@ -19,14 +18,24 @@ public class ComplianceScoringEngine {
         double earnedWeight = 0;
         
         for (DocumentType requiredType : requiredTypes) {
-            totalWeight += requiredType.getWeight();
+            if (requiredType.getWeight() != null) {
+                totalWeight += requiredType.getWeight();
+            }
             
-            // Check if vendor has this document type
-            boolean hasDocument = vendorDocuments.stream()
-                    .anyMatch(doc -> doc.getId() != null && 
-                                   doc.getId().equals(requiredType.getId()));
+            // Check if this document type exists in vendor documents
+            boolean hasDocument = false;
+            if (vendorDocuments != null) {
+                for (DocumentType vendorDoc : vendorDocuments) {
+                    if (vendorDoc != null && vendorDoc.getId() != null && 
+                        requiredType.getId() != null && 
+                        vendorDoc.getId().equals(requiredType.getId())) {
+                        hasDocument = true;
+                        break;
+                    }
+                }
+            }
             
-            if (hasDocument) {
+            if (hasDocument && requiredType.getWeight() != null) {
                 earnedWeight += requiredType.getWeight();
             }
         }
