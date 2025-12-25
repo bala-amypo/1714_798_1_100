@@ -22,7 +22,6 @@ public class ComplianceScoringEngine {
                 totalWeight += requiredType.getWeight();
             }
             
-            // Check if this document type exists in vendor documents
             boolean hasDocument = false;
             if (vendorDocuments != null) {
                 for (DocumentType vendorDoc : vendorDocuments) {
