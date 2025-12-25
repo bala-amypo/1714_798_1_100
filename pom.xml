@@ -124,9 +124,14 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M7</version>
                 <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
+                    <!-- This tells Surefire to ignore TestResultListener as a test class -->
+                    <excludedGroups>none</excludedGroups>
+                    <properties>
+                        <property>
+                            <name>usedefaultlisteners</name>
+                            <value>false</value>
+                        </property>
+                    </properties>
                 </configuration>
             </plugin>
         </plugins>
