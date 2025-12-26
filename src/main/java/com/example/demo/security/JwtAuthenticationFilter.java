@@ -35,19 +35,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         String token = authHeader.substring(7);
         
-        if (jwtUtil.validateToken(token)) {
-            String email = jwtUtil.getRoleFromToken(token); // Note: This is actually getting email from token
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            
-            UsernamePasswordAuthenticationToken authentication = 
-                new UsernamePasswordAuthenticationToken(
-                    userDetails, 
-                    null, 
-                    userDetails.getAuthorities()
-                );
-            
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            if (jwtUtil.validateToken(token)) {
+                // FIX: Use getSubjectFromToken() or getEmailFromToken() instead of getRoleFromToken()
+                String email = jwtUtil.getSubjectFromToken(token); // OR jwtUtil.getEmailFromToken(token)
+                
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+                    
+                    UsernamePasswordAuthenticationToken authentication = 
+                        new UsernamePasswordAuthenticationToken(
+                            userDetails, 
+                            null, 
+                            userDetails.getAuthorities()
+                        );
+                    
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }
+        } catch (Exception e) {
+            // Log the error but continue the filter chain
+            System.err.println("JWT validation error: " + e.getMessage());
         }
         
         filterChain.doFilter(request, response);

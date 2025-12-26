@@ -27,24 +27,18 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
         try {
+            // Authenticate using Spring Security's AuthenticationManager
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    authRequest.getEmail(),
+                    authRequest.getPassword()
+                )
+            );
+            
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
             // Find user by email
             User user = userService.findByEmail(authRequest.getEmail());
-            
-            // Check password
-            if (!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
-                return ResponseEntity.status(401).body(new AuthResponse(
-                    null, 
-                    null, 
-                    null, 
-                    "Invalid credentials"
-                ));
-            }
-            
-            // Create authentication token
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                user.getEmail(), 
-                user.getPassword()
-            );
             
             // Generate token
             String token = jwtUtil.generateToken(authentication, user.getId(), user.getEmail(), user.getRole());
@@ -64,19 +58,21 @@ public class AuthController {
                 null, 
                 null, 
                 null, 
-                "Authentication failed: " + e.getMessage()
+                "Authentication failed: Invalid email or password"
             ));
         }
     }
     
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@RequestBody User user) {
         try {
             User registeredUser = userService.registerUser(user);
             return ResponseEntity.ok(registeredUser);
         } catch (Exception e) {
             System.err.println("Registration error: " + e.getMessage());
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(
+                new AuthResponse(null, null, null, "Registration failed: " + e.getMessage())
+            );
         }
     }
 }

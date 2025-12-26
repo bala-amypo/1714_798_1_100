@@ -26,7 +26,7 @@ public class JwtUtil {
         Date validity = new Date(now.getTime() + validityInMilliseconds);
         
         return Jwts.builder()
-                .setSubject(authentication.getName())
+                .setSubject(email) // Set email as subject for easier retrieval
                 .claim("userId", userId)
                 .claim("email", email)
                 .claim("role", role)
@@ -58,5 +58,11 @@ public class JwtUtil {
     public String getEmailFromToken(String token) {
         Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
         return claims.get("email", String.class);
+    }
+    
+    // Get subject (email) directly
+    public String getSubjectFromToken(String token) {
+        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return claims.getSubject();
     }
 }
