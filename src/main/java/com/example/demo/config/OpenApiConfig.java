@@ -40,7 +40,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Vendor Compliance")
                         .version("1.0.0")
-                        .description("API for managing events, seat inventory, and dynamic pricing")
+                        .description("Vendor Compliance - Document Validator API")
                         .contact(new Contact()
                                 .name("API Support")
                                 .email("support@example.com"))
