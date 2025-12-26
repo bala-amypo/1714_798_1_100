@@ -45,8 +45,12 @@ public class AuthController {
             User user = userService.findByEmail(authRequest.getEmail());
             log.info("User authenticated: {} with role: {}", user.getEmail(), user.getRole());
             
-            // Generate token
+            // Generate token - PASS EMAIL, not role
             String token = jwtUtil.generateToken(authentication, user.getId(), user.getEmail(), user.getRole());
+            
+            // Debug: Print what's in the token
+            log.info("Generated token for email: {}, role: {}", user.getEmail(), user.getRole());
+            log.info("Token subject should be: {}", user.getEmail());
             
             // Return response
             return ResponseEntity.ok(new AuthResponse(
@@ -62,7 +66,7 @@ public class AuthController {
                 null, 
                 null, 
                 null, 
-                "Authentication failed: Invalid email or password"
+                "Authentication failed: " + e.getMessage()
             ));
         }
     }
@@ -80,8 +84,15 @@ public class AuthController {
         }
     }
     
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Auth endpoint is working!");
+    // Add a debug endpoint to check token
+    @PostMapping("/debug-token")
+    public ResponseEntity<String> debugToken(@RequestBody String token) {
+        try {
+            String email = jwtUtil.extractEmail(token);
+            String role = jwtUtil.extractRole(token);
+            return ResponseEntity.ok(String.format("Token debug - Email: %s, Role: %s", email, role));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }
