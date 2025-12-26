@@ -23,8 +23,10 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Email already used");
         }
         
+        // IMPORTANT: Hash the password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (user.getRole() == null) {
+        
+        if (user.getRole() == null || user.getRole().isEmpty()) {
             user.setRole("USER");
         }
         
