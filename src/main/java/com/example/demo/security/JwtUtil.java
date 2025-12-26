@@ -11,7 +11,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     
-    private final String secret = "mySecretKey123456789012345678901234567890";
+    private final String secret = "mySecretKey1234567890mySecretKey1234567890mySecretKey1234567890bard";
     private final long validityInMilliseconds = 3600000;
     
     public JwtUtil() {}
